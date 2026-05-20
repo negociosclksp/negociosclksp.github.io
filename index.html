@@ -897,7 +897,17 @@ function renderAnalyst(){
     }
     // Get all 6 statuses
     const statusData = curAnalyst==='equipe'
-      ? {and_:72,back:58,av:9,dev:8,ana:4,hom:2}
+      ? (()=>{
+          const all = Object.values(STATE.demands).flat();
+          return {
+            and_: all.filter(r=>r.status==='Em Andamento').length,
+            back: all.filter(r=>r.status==='Backlog').length,
+            av:   all.filter(r=>r.status==='Avaliação Técnica').length,
+            dev:  all.filter(r=>r.status==='Desenvolvimento').length,
+            ana:  all.filter(r=>r.status==='Análise').length,
+            hom:  all.filter(r=>r.status==='Homologação').length,
+          };
+        })()
       : (()=>{
           const d=STATE.demands[curAnalyst]||[];
           return {
