@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-  <meta name="bi-version" content="26052026_121648">
+  <meta name="bi-version" content="26052026_122006">
   <script>
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('/sw.js')
@@ -1288,7 +1288,8 @@ function renderAnalyst(){
             hom:  d.filter(r=>r.status==='Homologação').length,
           };
         })();
-    const tot=(statusData.and_+statusData.back+statusData.av+statusData.dev+statusData.ana+statusData.hom)||1;
+    const _allDemands = curAnalyst==='equipe' ? Object.values(getActiveState().demands).flat() : (getActiveState().demands[curAnalyst]||[]);
+    const tot = _allDemands.length || 1;
     const pct=v=>Math.round(v/tot*100);
     const statuses6=[
       {val:statusData.and_,lbl:'Em Andamento',bg:'#E6F1FB',bc:'#B5D4F4',tc:'#185FA5'},
