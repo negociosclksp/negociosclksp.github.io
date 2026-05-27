@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="27052026_152753">
+  <meta name="bi-version" content="27052026_154051">
 
   <script>
 
@@ -1626,7 +1626,36 @@ function mergeStates(sp, ud) {
 
     sla:       mergeSla(sp.sla, ud.sla),
 
-    slaByPeriod: {historico: null, ano_atual: null, mes_atual: null},
+    slaByPeriod: (function(){
+      function mergeSlaByPeriod(p1, p2) {
+        if(!p1 && !p2) return null;
+        p1 = p1 || {}; p2 = p2 || {};
+        const res = {};
+        const keys = new Set([...Object.keys(p1), ...Object.keys(p2)]);
+        keys.forEach(k => {
+          const a = p1[k] || {}, b = p2[k] || {};
+          const merged = {};
+          const nkeys = new Set([...Object.keys(a), ...Object.keys(b)]);
+          nkeys.forEach(nk => {
+            if(nk === 'equipe') {
+              // média dos tipos da equipe
+              const t1 = a.equipe || {}, t2 = b.equipe || {};
+              const tipos = new Set([...Object.keys(t1), ...Object.keys(t2)]);
+              merged.equipe = {};
+              tipos.forEach(t => {
+                const v1 = t1[t]||0, v2 = t2[t]||0;
+                merged.equipe[t] = v1 && v2 ? +((v1+v2)/2).toFixed(1) : v1||v2;
+              });
+            } else {
+              merged[nk] = a[nk] || b[nk];
+            }
+          });
+          res[k] = merged;
+        });
+        return res;
+      }
+      return mergeSlaByPeriod(sp.slaByPeriod, ud.slaByPeriod);
+    })(),
 
     absMonthly: mergeAbsObj(sp.absMonthly, ud.absMonthly),
 
@@ -2053,9 +2082,9 @@ function renderExecutive(){
 
   // Top ops
 
-  const maxOp = S.topOps[0][1];
+  const maxOp = S.topOps && S.topOps.length ? S.topOps[0][1] : 1;
 
-  document.getElementById('ops-grid').innerHTML = S.topOps.map(([n,v])=>`
+  document.getElementById('ops-grid').innerHTML = (S.topOps||[]).map(([n,v])=>`
 
     <div class="op-row">
 
