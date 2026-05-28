@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="28052026_123023">
+  <meta name="bi-version" content="28052026_123545">
 
   <script>
 
@@ -4757,7 +4757,7 @@ function getAnalystDay(block, dateKey){
 
   const special = block.demands[0]?.dias?.[dateKey];
 
-  if(special === 'férias' || special === 'banco' || special === 'folga_ani') return { total: 0, special, dems: [] };
+  if(special === 'férias' || special === 'banco' || special === 'folga_ani' || special === 'feriado') return { total: 0, special, dems: [] };
 
   block.demands.forEach(d=>{
 
@@ -4986,7 +4986,7 @@ function renderAlDetail(){
 
     const firstDem = block.demands[0]?.dias?.[dateKey];
 
-    const special = ['férias','banco','folga_ani'].includes(firstDem) ? firstDem : null;
+    const special = ['férias','banco','folga_ani','feriado'].includes(firstDem) ? firstDem : null;
 
     
 
