@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="28052026_085628">
+  <meta name="bi-version" content="28052026_104307">
 
   <script>
 
@@ -1823,15 +1823,25 @@ function renderExecutive(){
 
   const isAreaGeral = activeTeam === 'area';
 
+  // Quando visão Área: recalcular os KPIs do card principal usando a mesma lógica do breakdown
+  // para garantir que os números batem (evita divergência entre fonte Python e fonte JS)
+  const kDisplay = isAreaGeral ? {
+    ...k,
+    estoque:  spK.estoque  + udK.estoque,
+    emAtuacao: spK.emAtuacao + udK.emAtuacao,
+    backlog:  spK.backlog  + udK.backlog,
+    acima30:  spK.acima30  + udK.acima30,
+  } : k;
+
   document.getElementById('kpi-grid').innerHTML = `
 
-    <div class="kpi alert"><div class="kpi-label">Estoque total</div><div class="kpi-val">${k.estoque}</div><div class="kpi-sub">${execFilter==='projetos'?'projetos em aberto':execFilter==='demandas'?'demandas em aberto':'projetos e demandas em aberto'}</div></div>
+    <div class="kpi alert"><div class="kpi-label">Estoque total</div><div class="kpi-val">${kDisplay.estoque}</div><div class="kpi-sub">${execFilter==='projetos'?'projetos em aberto':execFilter==='demandas'?'demandas em aberto':'projetos e demandas em aberto'}</div></div>
 
-    <div class="kpi warn"><div class="kpi-label">Em atuação</div><div class="kpi-val">${k.emAtuacao}</div><div class="kpi-sub">em andamento</div></div>
+    <div class="kpi warn"><div class="kpi-label">Em atuação</div><div class="kpi-val">${kDisplay.emAtuacao}</div><div class="kpi-sub">em andamento</div></div>
 
-    <div class="kpi"><div class="kpi-label">Backlog</div><div class="kpi-val">${k.backlog}</div><div class="kpi-sub">aguardando início</div></div>
+    <div class="kpi"><div class="kpi-label">Backlog</div><div class="kpi-val">${kDisplay.backlog}</div><div class="kpi-sub">aguardando início</div></div>
 
-    <div class="kpi alert"><div class="kpi-label">Acima de 30 dias</div><div class="kpi-val">${k.acima30}</div><div class="kpi-sub">${Math.round(k.acima30/k.estoque*100)}% do estoque</div></div>
+    <div class="kpi alert"><div class="kpi-label">Acima de 30 dias</div><div class="kpi-val">${kDisplay.acima30}</div><div class="kpi-sub">${Math.round(kDisplay.acima30/kDisplay.estoque*100)}% do estoque</div></div>
 
     ${isAreaGeral ? `
 
