@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="29052026_153330">
+  <meta name="bi-version" content="29052026_154943">
 
 
 
@@ -4833,6 +4833,17 @@ let curDay = null; // selected day in week view
 
 const TODAY = new Date().toISOString().split('T')[0];
 
+function getRefDay(){
+  // Se TODAY está no mês atual da alocação, usa TODAY
+  // Caso contrário usa o primeiro dia disponível do mês
+  if(!ALOCACAO || !ALOCACAO.length) return TODAY;
+  const allDays = new Set();
+  ALOCACAO.forEach(b => b.demands.forEach(d => Object.keys(d.dias||{}).forEach(k => allDays.add(k))));
+  if(allDays.has(TODAY)) return TODAY;
+  const sorted = [...allDays].sort();
+  return sorted[0] || TODAY;
+}
+
 let curWeek = 'week1';
 
 
@@ -4993,13 +5004,15 @@ function getAnalystToday(block){
 
   const dems = [];
 
-  const special = block.demands[0]?.dias?.[TODAY];
+  const REF = getRefDay();
 
-  if(special === 'férias' || special === 'banco' || special === 'folga_ani') return { total: 0, special, dems: [] };
+  const special = block.demands[0]?.dias?.[REF];
+
+  if(special === 'férias' || special === 'banco' || special === 'folga_ani' || special === 'feriado') return { total: 0, special, dems: [] };
 
   block.demands.forEach(d=>{
 
-    const v = d.dias?.[TODAY];
+    const v = d.dias?.[REF];
 
     if(typeof v === 'number' && v > 0){ total += v; dems.push({...d, pct: v}); }
 
@@ -5270,7 +5283,7 @@ function renderAlDetail(){
 
   }
 
-  const displayDay = curDay || TODAY;
+  const displayDay = curDay || getRefDay();
 
   const dayLabel = curDay ? (block.days[curDay] || curDay) : 'Hoje';
 
