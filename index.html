@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="01062026_145837">
+  <meta name="bi-version" content="01062026_150314">
 
 
 
@@ -4837,9 +4837,29 @@ let curAlocMes = 'MAIO-26';
 // ALOCACAO aponta para o mês ativo (compatibilidade com código existente)
 let ALOCACAO = ALOCACAO_MESES[curAlocMes];
 
+// Auto-selecionar mês atual
+(function(){
+  const mesMap = {1:'JAN',2:'FEV',3:'MAR',4:'ABR',5:'MAIO',6:'JUNHO',7:'JUL',8:'AGO',9:'SET',10:'OUT',11:'NOV',12:'DEZ'};
+  const now = new Date();
+  const mesKey = mesMap[now.getMonth()+1] + '-' + String(now.getFullYear()).slice(-2);
+  const keys = Object.keys(ALOCACAO_MESES);
+  const best = keys.includes(mesKey) ? mesKey : keys[keys.length - 1];
+  if(best && best !== curAlocMes){
+    curAlocMes = best;
+    ALOCACAO = ALOCACAO_MESES[curAlocMes] || [];
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.nav-month-item').forEach(function(el){
+      el.classList.remove('active');
+      if(el.id === 'mes-' + curAlocMes) el.classList.add('active');
+    });
+  });
+})();
+
 function selectAlocMes(mes, el) {
   curAlocMes = mes;
   ALOCACAO = ALOCACAO_MESES[mes] || [];
+  window._weekInitialized = false; // força re-seleção da semana correta
   // Atualizar visual dos sub-links
   document.querySelectorAll('.nav-month-item').forEach(i => i.classList.remove('active'));
   if (el) el.classList.add('active');
