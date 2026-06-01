@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="01062026_144831">
+  <meta name="bi-version" content="01062026_145837">
 
 
 
@@ -645,6 +645,35 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .chips-logout-btn{background:none;border:1px solid var(--border);border-radius:12px;padding:3px 10px;font-size:11px;cursor:pointer;color:var(--text-2)}
 .chips-logout-btn:hover{background:var(--bg)}
 
+
+.help-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--blue);color:var(--blue-dk);font-size:12px;font-weight:700;cursor:pointer;background:var(--blue-bg);margin-left:10px;vertical-align:middle;line-height:1;flex-shrink:0}
+.help-btn:hover{background:var(--blue);color:#fff}
+.help-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center}
+.help-overlay.open{display:flex}
+.help-modal{background:var(--surface);border-radius:var(--radius-lg);width:660px;max-width:95vw;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.18)}
+.help-modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.help-modal-title{font-size:15px;font-weight:600;color:var(--text)}
+.help-modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-2);line-height:1;padding:2px 6px;border-radius:4px}
+.help-modal-close:hover{background:var(--bg)}
+.help-modal-body{overflow-y:auto;padding:20px 22px;flex:1}
+.help-section{margin-bottom:22px}
+.help-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-2);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border-light)}
+.help-pct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px}
+.help-pct-card{background:var(--bg);border:1px solid var(--border-light);border-radius:var(--radius);padding:8px 10px;text-align:center}
+.help-pct-val{font-size:15px;font-weight:700;color:var(--blue-dk)}
+.help-pct-h{font-size:11px;color:var(--text-2);margin-top:2px}
+.help-pct-note{font-size:11px;color:var(--text-3);margin-top:3px}
+.help-special-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light)}
+.help-special-row:last-child{border-bottom:none}
+.help-special-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;white-space:nowrap;flex-shrink:0;min-width:90px;justify-content:center}
+.help-special-desc{font-size:12px;color:var(--text-2);line-height:1.5}
+.help-rule-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border-light);font-size:12px;align-items:flex-start}
+.help-rule-row:last-child{border-bottom:none}
+.help-rule-icon{width:20px;flex-shrink:0;text-align:center;margin-top:1px}
+.help-rule-text{color:var(--text-2);line-height:1.5}
+.help-rule-text strong{color:var(--text)}
+.help-warn{background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--amber-dk);line-height:1.5;margin-top:10px}
+
 </style>
 
 </head>
@@ -1170,7 +1199,7 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 
     <div class="page-header-left">
 
-      <div class="page-title">Alocação · Equipe Negócios TI - SP</div>
+      <div class="page-title">Alocação · Equipe Negócios TI - SP <span class="help-btn" onclick="document.getElementById('aloc-help-overlay').classList.add('open')" title="Como preencher">?</span></div>
 
       <div class="page-sub" id="aloc-sub">Visão do dia e da semana por analista</div>
 
@@ -5601,6 +5630,94 @@ document.addEventListener('DOMContentLoaded', function() {
 
 } catch(e) { console.warn("BI init error:", e); }
 </script>
+
+
+<!-- MODAL AJUDA ALOCAÇÃO -->
+<div class="help-overlay" id="aloc-help-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="help-modal">
+    <div class="help-modal-header">
+      <span class="help-modal-title">Como preencher a Alocação</span>
+      <button class="help-modal-close" onclick="document.getElementById('aloc-help-overlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="help-modal-body">
+
+      <div class="help-section">
+        <div class="help-section-title">Tabela de Percentual × Horas (dia de 8h)</div>
+        <div class="help-pct-grid">
+          <div class="help-pct-card"><div class="help-pct-val">5%</div><div class="help-pct-h">~24 min</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">10%</div><div class="help-pct-h">~48 min</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">15%</div><div class="help-pct-h">~1h12</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">20%</div><div class="help-pct-h">1h36</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">25%</div><div class="help-pct-h">2h</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">30%</div><div class="help-pct-h">2h24</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">35%</div><div class="help-pct-h">2h48</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">40%</div><div class="help-pct-h">3h12</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">45%</div><div class="help-pct-h">3h36</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">50%</div><div class="help-pct-h">4h</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">55%</div><div class="help-pct-h">4h24</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">60%</div><div class="help-pct-h">4h48</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">65%</div><div class="help-pct-h">5h12</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">70%</div><div class="help-pct-h">5h36</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">75%</div><div class="help-pct-h">6h</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">80%</div><div class="help-pct-h">6h24</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">85%</div><div class="help-pct-h">6h48</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">90%</div><div class="help-pct-h">7h12</div></div>
+          <div class="help-pct-card"><div class="help-pct-val">95%</div><div class="help-pct-h">7h36</div></div>
+          <div class="help-pct-card" style="border-color:var(--green);background:var(--green-bg)"><div class="help-pct-val" style="color:var(--green-dk)">100%</div><div class="help-pct-h" style="color:var(--green-dk)">8h — dia cheio</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:6px">Acima de 100% indica hora extra. A soma de todas as demandas no dia deve totalizar no máximo 100%.</div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Status Especiais</div>
+        <div class="help-special-row">
+          <span class="help-special-badge" style="background:var(--green-bg);color:var(--green-dk)">Férias</span>
+          <span class="help-special-desc">Analista em período de férias. Preencha a célula do dia com o texto <strong>férias</strong>. Nenhuma demanda deve ser alocada neste dia.</span>
+        </div>
+        <div class="help-special-row">
+          <span class="help-special-badge" style="background:var(--blue-bg);color:var(--blue-dk)">Banco de Horas</span>
+          <span class="help-special-desc">Analista cumprindo banco de horas. Preencha com o texto <strong>banco</strong>. O analista não estará disponível para demandas no dia.</span>
+        </div>
+        <div class="help-special-row">
+          <span class="help-special-badge" style="background:var(--amber-bg);color:var(--amber-dk)">Feriado</span>
+          <span class="help-special-desc">Dia sem expediente por feriado nacional ou regional. Preencha com o texto <strong>feriado</strong>. O BI exibirá automaticamente "Sem Expediente · Feriado".</span>
+        </div>
+        <div class="help-special-row">
+          <span class="help-special-badge" style="background:#EEEDFE;color:#3C3489">Folga Aniv.</span>
+          <span class="help-special-desc">Analista em folga de aniversário. Preencha com o texto <strong>folga ani</strong>. Não há alocação neste dia.</span>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Boas Práticas de Preenchimento</div>
+        <div class="help-rule-row">
+          <span class="help-rule-icon">✅</span>
+          <span class="help-rule-text"><strong>Concentre as demandas.</strong> Um analista atua em poucas demandas por dia — idealmente 2 a 4. Se uma demanda ocupa menos de 5% do dia (~24 min), avalie se faz sentido registrá-la separadamente.</span>
+        </div>
+        <div class="help-rule-row">
+          <span class="help-rule-icon">✅</span>
+          <span class="help-rule-text"><strong>A soma do dia deve ser 100%.</strong> Some todas as % das demandas do analista no dia. O resultado deve ser igual a 100% (ou próximo) em dias de trabalho normal.</span>
+        </div>
+        <div class="help-rule-row">
+          <span class="help-rule-icon">✅</span>
+          <span class="help-rule-text"><strong>Use múltiplos de 5%.</strong> Facilita a leitura e mantém consistência. Ex: 20%, 30%, 50% — evite valores como 13% ou 37%.</span>
+        </div>
+        <div class="help-rule-row">
+          <span class="help-rule-icon">⚠️</span>
+          <span class="help-rule-text"><strong>Não fragmente demandas em excesso.</strong> Registrar 10 demandas diferentes em um único dia com 10% cada não reflete a realidade da atuação e dificulta a gestão de prioridades.</span>
+        </div>
+        <div class="help-rule-row">
+          <span class="help-rule-icon">⚠️</span>
+          <span class="help-rule-text"><strong>Demandas em backlog ou aguardando.</strong> Se a demanda existe mas o analista não atuou naquele dia, deixe a célula em branco — não registre 0% ou qualquer valor.</span>
+        </div>
+        <div class="help-warn">
+          Exemplo incorreto: registrar 10% em 10 demandas diferentes no mesmo dia. Isso indica que o analista dedicou apenas ~48 min a cada atividade — inviável para demandas que exigem foco. Consolide atividades relacionadas ou redistribua entre os dias da semana.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 </body>
 
