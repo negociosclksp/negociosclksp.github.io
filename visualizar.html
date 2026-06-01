@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visualizar Alocação · Negócios SP</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f5f7;--surface:#fff;--border:#dddde0;--border-light:#efefed;
+  --text:#1a1a18;--text-2:#6b6b68;--text-3:#a8a8a4;
+  --blue:#378ADD;--blue-bg:#E6F1FB;--blue-dk:#185FA5;
+  --green:#1D9E75;--green-bg:#EAF3DE;--green-dk:#3B6D11;
+  --amber:#EF9F27;--amber-bg:#FAEEDA;--amber-dk:#854F0B;
+  --red:#E24B4A;--red-bg:#FCEBEB;--red-dk:#A32D2D;
+  --radius:8px;--radius-lg:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+/* Header */
+.header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;gap:16px}
+.header-logo{height:26px}
+.header-title{font-size:14px;font-weight:600}
+.header-sub{font-size:11px;color:var(--text-2)}
+.header-right{display:flex;align-items:center;gap:10px}
+.btn-back{display:flex;align-items:center;gap:6px;padding:6px 12px;
+  border:1px solid var(--border);border-radius:20px;font-size:12px;
+  cursor:pointer;background:var(--surface);color:var(--text-2);text-decoration:none}
+.btn-back:hover{background:var(--bg)}
+
+/* Controles */
+.controls{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ctrl-label{font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--text-2)}
+.ctrl-select{padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);
+  font-size:12px;color:var(--text);background:var(--surface);cursor:pointer}
+.ctrl-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+.view-btns{display:flex;gap:4px}
+.view-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);
+  font-size:12px;cursor:pointer;background:var(--surface);color:var(--text-2)}
+.view-btn.active{background:var(--blue-bg);border-color:#B5D4F4;color:var(--blue-dk);font-weight:500}
+
+/* Main */
+.main{padding:24px;max-width:1200px;margin:0 auto}
+.section-label{font-size:10px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--text-2);margin-bottom:12px;margin-top:24px}
+.section-label:first-child{margin-top:0}
+
+/* Cards de analista (hoje) */
+.al-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:4px}
+.al-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer;transition:all .15s}
+.al-card:hover{border-color:var(--blue)}
+.al-card.active{border-color:var(--blue);background:var(--blue-bg)}
+.al-name{font-size:13px;font-weight:500;margin-bottom:8px;color:var(--text)}
+.al-pct{font-size:28px;font-weight:600;line-height:1}
+.al-sub{font-size:11px;margin-top:4px}
+.al-bar{height:3px;background:var(--border-light);border-radius:2px;margin-top:10px;overflow:hidden}
+.al-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+
+/* Visão semanal */
+.week-nav{display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.week-nav-label{font-size:11px;color:var(--text-2);font-weight:500;margin-right:4px}
+.wbtn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);
+  font-size:12px;cursor:pointer;background:var(--surface);color:var(--text-2)}
+.wbtn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.wbtn.current{border-color:var(--blue);color:var(--blue-dk)}
+
+.week-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.day-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:12px;cursor:pointer;transition:all .15s;min-height:120px}
+.day-card:hover{border-color:var(--blue)}
+.day-card.active{border-color:var(--blue);background:var(--blue-bg)}
+.day-card.today{border-color:var(--blue)}
+.day-card.special{background:var(--bg);cursor:default;opacity:.7}
+.day-header{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--text-2);margin-bottom:8px;display:flex;
+  align-items:center;justify-content:space-between}
+.day-header.today-hd{color:var(--blue-dk)}
+.day-today-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.day-item{display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;margin-bottom:3px;gap:6px}
+.day-item-name{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.day-item-pct{font-weight:600;font-size:11px;flex-shrink:0}
+.day-total{font-size:10px;font-weight:600;margin-top:6px;padding-top:5px;
+  border-top:1px solid var(--border-light)}
+.day-total.ok{color:var(--green-dk)}
+.day-total.over{color:var(--red-dk)}
+.day-total.partial{color:var(--amber-dk)}
+.day-special-label{font-size:11px;color:var(--text-2);text-align:center;
+  padding:20px 0;font-style:italic}
+
+/* Detalhe do dia */
+.detail-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:16px 20px;margin-top:16px}
+.detail-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:1px solid var(--border-light)}
+.detail-title{font-size:13px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--text-2)}
+.detail-pct{font-size:13px;font-weight:700}
+.detail-pct.ok{color:var(--green-dk)}
+.detail-pct.over{color:var(--red-dk)}
+.detail-pct.partial{color:var(--amber-dk)}
+.detail-row{display:flex;align-items:center;gap:12px;padding:8px 0;
+  border-bottom:1px solid var(--border-light)}
+.detail-row:last-child{border-bottom:none}
+.detail-bar-wrap{width:80px;height:4px;background:var(--border-light);
+  border-radius:2px;overflow:hidden;flex-shrink:0}
+.detail-bar-fill{height:100%;border-radius:2px}
+.detail-pct-label{font-size:12px;font-weight:600;color:var(--text-2);
+  min-width:30px;text-align:right;flex-shrink:0}
+.detail-name{flex:1;font-size:13px;color:var(--text)}
+.detail-fase{font-size:11px;color:var(--text-2);flex-shrink:0}
+.empty-state{text-align:center;padding:32px;color:var(--text-2);font-size:13px}
+
+/* Loading */
+.loading{text-align:center;padding:40px;color:var(--text-2);font-size:13px}
+
+/* Badge equipe */
+.eq-badge{display:inline-flex;font-size:9px;font-weight:600;padding:1px 6px;
+  border-radius:5px;margin-left:4px}
+.eq-sp{background:var(--blue-bg);color:var(--blue-dk)}
+.eq-udia{background:#EEEDFE;color:#3C3489}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div>
+      <div class="header-title">Visualizar Alocação <span style="font-size:10px;background:var(--blue-bg);color:var(--blue-dk);padding:1px 6px;border-radius:6px;font-weight:600;margin-left:4px">v3</span></div>
+      <div class="header-sub">Negócios TI · SP</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a href="v3.html" class="btn-back">← Apontamento</a>
+    <a href="/" class="btn-back">⬡ BI Principal</a>
+  </div>
+</header>
+
+<div class="controls">
+  <span class="ctrl-label">Analista</span>
+  <select class="ctrl-select" id="vis-analista" onchange="visSelectAnalista(this.value)">
+    <option value="todos">Todos</option>
+    <optgroup label="Equipe SP">
+      <option value="Bruno Saraiva">Bruno Saraiva</option>
+      <option value="Camila Moraes">Camila Moraes</option>
+      <option value="Carolina Andrade">Carolina Andrade</option>
+      <option value="Matheus Lopes">Matheus Lopes</option>
+      <option value="Samuel Pinto">Samuel Pinto</option>
+    </optgroup>
+  </select>
+
+  <div class="ctrl-sep"></div>
+
+  <span class="ctrl-label">Mês</span>
+  <select class="ctrl-select" id="vis-mes" onchange="visSelectMes(this.value)">
+    <option value="2026-06">Junho/2026</option>
+    <option value="2026-07">Julho/2026</option>
+  </select>
+
+  <div class="ctrl-sep"></div>
+
+  <span class="ctrl-label">Semana</span>
+  <select class="ctrl-select" id="vis-semana" onchange="visSelectSemana(this.value)"></select>
+</div>
+
+<main class="main" id="main-content">
+  <div class="loading">Carregando alocações...</div>
+</main>
+
+<script>
+const FERIADOS = new Set([
+  '2026-01-01','2026-02-16','2026-02-17','2026-02-18',
+  '2026-04-03','2026-04-05','2026-04-21','2026-05-01',
+  '2026-06-04','2026-09-07','2026-10-12','2026-11-02',
+  '2026-11-15','2026-11-20','2026-12-25'
+]);
+const FERIADO_LABEL = {
+  '2026-06-04':'Corpus Christi','2026-09-07':'Independência',
+  '2026-10-12':'N.Sra. Aparecida','2026-11-02':'Finados',
+  '2026-11-15':'Proc. República','2026-11-20':'Consciência Negra',
+  '2026-12-25':'Natal'
+};
+const ANALISTAS_SP = ['Bruno Saraiva','Camila Moraes','Carolina Andrade','Matheus Lopes','Samuel Pinto'];
+
+// Estado
+let visAnalista = 'todos';
+let visMes      = '2026-06';
+let visSemana   = 0;
+let visDia      = null;
+let visCache    = {}; // 'YYYY-MM-DD:analista' → [{id,nome,tipo,pct,extra}]
+
+function today(){ return new Date().toISOString().split('T')[0]; }
+function isoToDate(s){ const [y,m,d]=s.split('-'); return new Date(y,m-1,d); }
+function isFds(s){ const d=isoToDate(s).getDay(); return d===0||d===6; }
+function isFeriado(s){ return FERIADOS.has(s); }
+function isSpecial(s){ return isFeriado(s)||isFds(s); }
+
+function getWeeksOfMes(mes){
+  const [y,m]=mes.split('-').map(Number);
+  const first=new Date(y,m-1,1), last=new Date(y,m,0);
+  const weeks=[];
+  let cur=new Date(first);
+  cur.setDate(cur.getDate()-(cur.getDay()===0?6:cur.getDay()-1));
+  while(cur<=last){
+    const wk=[];
+    for(let i=0;i<7;i++){ const d=new Date(cur); d.setDate(cur.getDate()+i); wk.push(d.toISOString().split('T')[0]); }
+    weeks.push(wk);
+    cur.setDate(cur.getDate()+7);
+  }
+  return weeks;
+}
+
+function getCurrentWeekIdx(mes){
+  const td=today(), weeks=getWeeksOfMes(mes);
+  for(let i=0;i<weeks.length;i++) if(weeks[i].includes(td)) return i;
+  return 0;
+}
+
+function buildVisSemanaSelect(){
+  const sel=document.getElementById('vis-semana');
+  const weeks=getWeeksOfMes(visMes);
+  const td=today();
+  sel.innerHTML=weeks.map((days,i)=>`<option value="${i}">Semana ${i+1}${days.includes(td)?' ★':''}</option>`).join('');
+  sel.value=visSemana;
+}
+
+// Storage
+async function storageGet(key){
+  try{ const r=await window.storage.get(key,true); return r?JSON.parse(r.value):null; }
+  catch(e){ return null; }
+}
+
+async function loadAll(){
+  const weeks=getWeeksOfMes(visMes);
+  const days=weeks[visSemana]||weeks[0]||[];
+  const analistas=visAnalista==='todos'?ANALISTAS_SP:[visAnalista];
+  const promises=[];
+  for(const a of analistas){
+    for(const d of days){
+      const key=`aloc:${d}:${a}`;
+      promises.push(storageGet(key).then(data=>{ visCache[`${d}:${a}`]=data||[]; }));
+    }
+  }
+  await Promise.all(promises);
+}
+
+function getLancs(date, analista){ return visCache[`${date}:${analista}`]||[]; }
+function getTotal(date, analista){ return getLancs(date,analista).reduce((s,l)=>s+l.pct,0); }
+
+// Render
+function render(){
+  const weeks=getWeeksOfMes(visMes);
+  const days=(weeks[visSemana]||weeks[0]||[]).filter(d=>!isFds(d));
+  const analistas=visAnalista==='todos'?ANALISTAS_SP:[visAnalista];
+  const td=today();
+  const main=document.getElementById('main-content');
+
+  let html='';
+
+  // ── Seção: Alocação de hoje (só se hoje está na semana selecionada) ────────
+  const todayInWeek=(weeks[visSemana]||[]).includes(td);
+  if(todayInWeek){
+    html+=`<div class="section-label">Alocação de hoje</div>
+    <div class="al-grid">`;
+    for(const a of analistas){
+      const lancs=getLancs(td,a);
+      const total=lancs.reduce((s,l)=>s+l.pct,0);
+      const tp=Math.round(total*100);
+      const cls=tp>100?'over':tp>=90?'ok':'partial';
+      const clr=tp>100?'var(--red-dk)':tp>=90?'var(--green-dk)':tp>0?'var(--amber-dk)':'var(--text-3)';
+      const sub=tp>=90?'alocado hoje':tp>0?'parcialmente alocado':'sem alocação';
+      const isActive=visDia===td&&(visAnalista===a||visAnalista==='todos');
+      html+=`<div class="al-card${isActive?' active':''}" onclick="visDia='${td}';render()">
+        <div class="al-name">${a.split(' ')[0]}<span class="eq-badge eq-sp">SP</span></div>
+        <div class="al-pct" style="color:${clr}">${tp>0?tp+'%':'—'}</div>
+        <div class="al-sub" style="color:${clr}">${sub}</div>
+        <div class="al-bar"><div class="al-bar-fill" style="width:${Math.min(100,tp)}%;background:${clr}"></div></div>
+      </div>`;
+    }
+    html+='</div>';
+  }
+
+  // ── Seção: Visão da semana ────────────────────────────────────────────────
+  const analLabel=visAnalista==='todos'?'Equipe SP':visAnalista.split(' ')[0];
+  html+=`<div class="section-label" style="margin-top:${todayInWeek?'24px':'0'}">
+    Principais alocações da semana · ${analLabel}
+  </div>`;
+
+  // Seletor de semanas (botões)
+  const allWeeks=getWeeksOfMes(visMes);
+  html+=`<div class="week-nav"><span class="week-nav-label">Semana</span>`;
+  allWeeks.forEach((wk,i)=>{
+    const isCur=wk.includes(td);
+    html+=`<button class="wbtn${visSemana===i?' active':''}${isCur&&visSemana!==i?' current':''}"
+      onclick="visSemana=${i};buildVisSemanaSelect();loadAll().then(render)">${i+1}${isCur?' ★':''}</button>`;
+  });
+  html+=`</div>`;
+
+  // Grid de dias (seg-sex)
+  const weekDays=(weeks[visSemana]||weeks[0]||[]).filter(d=>{
+    const m=d.split('-')[1]; return m===visMes.split('-')[1]||true; // mostrar todos da semana
+  }).filter(d=>!isFds(d));
+
+  html+=`<div class="week-grid">`;
+  for(const d of weekDays){
+    const dt=isoToDate(d);
+    const dayLabel=dt.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','/');
+    const isToday=d===td;
+    const isDayActive=visDia===d;
+    const fer=isFeriado(d);
+
+    if(fer){
+      html+=`<div class="day-card special">
+        <div class="day-header">${dayLabel}</div>
+        <div class="day-special-label">Sem Expediente<br>${FERIADO_LABEL[d]||'Feriado'}</div>
+      </div>`;
+      continue;
+    }
+
+    // Calcular totais para todos os analistas (ou analista selecionado)
+    let dayHtml='';
+    let maxTotal=0;
+
+    if(visAnalista==='todos'){
+      // Modo todos: mostrar um mini-resumo por analista
+      for(const a of analistas){
+        const lancs=getLancs(d,a);
+        const tp=Math.round(lancs.reduce((s,l)=>s+l.pct,0)*100);
+        if(tp===0) continue;
+        const clr=tp>100?'var(--red-dk)':tp>=90?'var(--green-dk)':'var(--amber-dk)';
+        dayHtml+=`<div class="day-item">
+          <span class="day-item-name">${a.split(' ')[0]}</span>
+          <span class="day-item-pct" style="color:${clr}">${tp}%</span>
+        </div>`;
+        maxTotal=Math.max(maxTotal,tp);
+      }
+    } else {
+      // Modo analista: mostrar top demandas
+      const lancs=getLancs(d,visAnalista);
+      const total=lancs.reduce((s,l)=>s+l.pct,0);
+      maxTotal=Math.round(total*100);
+      lancs.slice(0,4).forEach(l=>{
+        dayHtml+=`<div class="day-item">
+          <span class="day-item-name" title="${l.nome}">${l.nome.split('-').pop().trim().substring(0,22)}</span>
+          <span class="day-item-pct">${Math.round(l.pct*100)}%</span>
+        </div>`;
+      });
+    }
+
+    const totalCls=maxTotal>100?'over':maxTotal>=90?'ok':'partial';
+    const totalLabel=maxTotal>=90?'alocado':maxTotal>0?maxTotal+'% alocado':'sem lançamento';
+
+    html+=`<div class="day-card${isDayActive?' active':''}${isToday?' today':''}"
+      onclick="visDia='${d}';render()">
+      <div class="day-header${isToday?' today-hd':''}">
+        <span>${dayLabel}</span>
+        ${isToday?'<span class="day-today-dot"></span>':''}
+      </div>
+      ${dayHtml||'<div style="font-size:11px;color:var(--text-3);padding:8px 0">Sem lançamento</div>'}
+      <div class="day-total ${totalCls}">${totalLabel}</div>
+    </div>`;
+  }
+  html+=`</div>`;
+
+  // ── Detalhe do dia selecionado ─────────────────────────────────────────────
+  if(visDia){
+    const dtLabel=isoToDate(visDia).toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
+    const analLabel2=visAnalista==='todos'?'Equipe SP':visAnalista;
+
+    html+=`<div class="detail-card">
+      <div class="detail-header">
+        <span class="detail-title">Detalhe de ${dtLabel} · ${analLabel2}</span>`;
+
+    if(visAnalista!=='todos'){
+      const total=Math.round(getTotal(visDia,visAnalista)*100);
+      const cls=total>100?'over':total>=90?'ok':'partial';
+      html+=`<span class="detail-pct ${cls}">${total}% OCUPADO</span>`;
+    }
+    html+='</div>';
+
+    const analDet=visAnalista==='todos'?ANALISTAS_SP:[visAnalista];
+    for(const a of analDet){
+      const lancs=getLancs(visDia,a);
+      if(!lancs.length){
+        if(visAnalista==='todos') continue;
+        html+=`<div class="empty-state">Sem lançamento registrado para este dia.</div>`;
+        continue;
+      }
+      if(visAnalista==='todos'){
+        const tp=Math.round(lancs.reduce((s,l)=>s+l.pct,0)*100);
+        const cls=tp>100?'over':tp>=90?'ok':'partial';
+        html+=`<div style="font-size:11px;font-weight:600;text-transform:uppercase;
+          letter-spacing:.06em;color:var(--text-2);margin:10px 0 6px">${a} — <span class="${cls}" style="color:var(${cls==='ok'?'--green-dk':cls==='over'?'--red-dk':'--amber-dk'})">${tp}%</span></div>`;
+      }
+      html+=lancs.map(l=>{
+        const w=Math.min(100,Math.round(l.pct*100));
+        const clr=w>=90?'var(--green)':w>=50?'var(--amber)':'var(--blue)';
+        return `<div class="detail-row">
+          <div class="detail-bar-wrap"><div class="detail-bar-fill" style="width:${w}%;background:${clr}"></div></div>
+          <div class="detail-pct-label">${Math.round(l.pct*100)}%</div>
+          <div class="detail-name">${l.nome}</div>
+          <div class="detail-fase">${l.tipo||''}</div>
+        </div>`;
+      }).join('');
+    }
+    html+='</div>';
+  }
+
+  main.innerHTML=html;
+}
+
+// Init
+function visSelectAnalista(v){ visAnalista=v; loadAll().then(render); }
+function visSelectMes(v){
+  visMes=v; visSemana=getCurrentWeekIdx(v);
+  buildVisSemanaSelect();
+  loadAll().then(render);
+}
+function visSelectSemana(v){
+  visSemana=parseInt(v);
+  buildVisSemanaSelect();
+  loadAll().then(render);
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  visMes = (() => {
+    const n=new Date();
+    return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0');
+  })();
+  visSemana=getCurrentWeekIdx(visMes);
+  const mSel=document.getElementById('vis-mes');
+  if(mSel) mSel.value=visMes;
+  buildVisSemanaSelect();
+  visDia=today();
+  loadAll().then(render);
+});
+</script>
+</body>
+</html>
