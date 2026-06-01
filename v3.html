@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BI Negócios SP · Alocação v3</title>
+<style>
+/* ── Reset & Base ─────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F4F0;--surface:#FFFFFF;--border:#E2E0D8;--border-light:#EEECE6;
+  --text:#1A1A18;--text2:#5F5E5A;--text3:#888780;
+  --blue:#378ADD;--blue-bg:#E6F1FB;--blue-dk:#185FA5;
+  --green:#639922;--green-bg:#EAF3DE;--green-dk:#3B6D11;
+  --amber:#EF9F27;--amber-bg:#FAEEDA;--amber-dk:#854F0B;
+  --red:#E24B4A;--red-bg:#FCEBEB;--red-dk:#A32D2D;
+  --purple-bg:#EEEDFE;--purple-dk:#3C3489;
+  --radius:8px;--radius-lg:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* ── Login ────────────────────────────────────────────────────────────────── */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;
+  align-items:center;justify-content:center;z-index:100}
+.login-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:36px 40px;width:340px;
+  box-shadow:0 4px 32px rgba(0,0,0,.08)}
+.login-logo{width:80px;margin-bottom:20px}
+.login-title{font-size:16px;font-weight:600;margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--text2);margin-bottom:24px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:5px}
+.field input{width:100%;padding:9px 11px;font-size:13px;border:1px solid var(--border);
+  border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none}
+.field input:focus{border-color:var(--blue);background:var(--surface)}
+.btn-primary{width:100%;padding:10px;font-size:13px;font-weight:600;
+  background:var(--blue);color:#fff;border:none;border-radius:var(--radius);
+  cursor:pointer;margin-top:4px;transition:background .15s}
+.btn-primary:hover{background:var(--blue-dk)}
+.login-err{font-size:12px;color:var(--red-dk);margin-top:10px;text-align:center;min-height:16px}
+
+/* ── App Shell ────────────────────────────────────────────────────────────── */
+#app{display:none;min-height:100vh;flex-direction:column}
+#app.visible{display:flex}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50}
+.header-left{display:flex;align-items:center;gap:14px}
+.header-logo{height:28px}
+.header-title{font-size:14px;font-weight:600;color:var(--text)}
+.header-sub{font-size:11px;color:var(--text2)}
+.header-right{display:flex;align-items:center;gap:10px}
+.user-badge{display:flex;align-items:center;gap:6px;font-size:12px;
+  background:var(--blue-bg);border:1px solid #B5D4F4;border-radius:20px;
+  padding:4px 12px;color:var(--blue-dk)}
+.user-badge .role{font-weight:600}
+.btn-logout{background:none;border:1px solid var(--border);border-radius:20px;
+  padding:4px 12px;font-size:12px;cursor:pointer;color:var(--text2)}
+.btn-logout:hover{background:var(--bg)}
+
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+.layout{display:flex;flex:1}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);
+  padding:16px 0;flex-shrink:0;position:sticky;top:52px;height:calc(100vh - 52px);
+  overflow-y:auto}
+.main{flex:1;padding:24px;max-width:960px}
+
+/* ── Sidebar Nav ──────────────────────────────────────────────────────────── */
+.nav-section{font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--text3);padding:8px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 20px;
+  cursor:pointer;color:var(--text2);font-size:13px;border-left:3px solid transparent;
+  transition:all .15s}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:#f0f0ee;color:var(--text);border-left-color:var(--blue);font-weight:500}
+.nav-analista-name{font-size:12px;font-weight:600;color:var(--text);padding:6px 20px 2px;
+  display:flex;align-items:center;gap:6px}
+.nav-analista-tag{font-size:10px;font-weight:500;padding:1px 6px;border-radius:6px}
+.nav-analista-tag.sp{background:var(--blue-bg);color:var(--blue-dk)}
+.nav-analista-tag.udia{background:var(--purple-bg);color:var(--purple-dk)}
+
+/* ── Page header ──────────────────────────────────────────────────────────── */
+.page-header{margin-bottom:20px}
+.page-title{font-size:20px;font-weight:600;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text2)}
+
+/* ── Seletor de Data ──────────────────────────────────────────────────────── */
+.date-strip{display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:2px}
+.date-btn{flex-shrink:0;min-width:72px;padding:8px 12px;text-align:center;
+  border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);
+  cursor:pointer;transition:all .15s;position:relative}
+.date-btn:hover:not(.blocked):not(.disabled){border-color:var(--blue);background:var(--blue-bg)}
+.date-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.date-btn.active .date-day{color:#fff}
+.date-btn.active .date-label{color:rgba(255,255,255,.8)}
+.date-btn.today-btn{border-color:var(--blue)}
+.date-btn.blocked{opacity:.45;cursor:not-allowed;background:var(--bg)}
+.date-btn.has-data::after{content:'';position:absolute;top:5px;right:5px;
+  width:6px;height:6px;border-radius:50%;background:var(--green)}
+.date-btn.has-extra::after{background:var(--amber)}
+.date-btn.has-overtime::after{background:var(--red)}
+.date-num{font-size:18px;font-weight:600}
+.date-day{font-size:10px;color:var(--text2);margin-top:1px}
+.date-label{font-size:9px;margin-top:2px;font-weight:500}
+.date-label.feriado{color:var(--red-dk)}
+.date-label.fds{color:var(--text3)}
+.date-label.today{color:var(--blue-dk)}
+
+/* ── Painel de Lançamento ─────────────────────────────────────────────────── */
+.panel-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+@media(max-width:900px){.panel-grid{grid-template-columns:1fr}}
+
+/* ── Card de Demanda ──────────────────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:16px}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--text2);margin-bottom:12px}
+.demand-item{display:flex;align-items:center;gap:10px;padding:9px 12px;
+  border:1px solid var(--border-light);border-radius:var(--radius);margin-bottom:6px;
+  cursor:pointer;transition:all .15s;background:var(--surface)}
+.demand-item:hover{border-color:var(--blue);background:var(--blue-bg)}
+.demand-item.selected{border-color:var(--blue);background:var(--blue-bg)}
+.demand-item.lancado{border-color:var(--green);background:var(--green-bg)}
+.demand-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
+.demand-item.selected .demand-check,.demand-item.lancado .demand-check{
+  background:var(--blue);border-color:var(--blue);color:#fff}
+.demand-item.lancado .demand-check{background:var(--green);border-color:var(--green)}
+.demand-info{flex:1;min-width:0}
+.demand-nome{font-size:12px;font-weight:500;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.demand-meta{font-size:11px;color:var(--text2);margin-top:1px}
+.demand-pct{font-size:13px;font-weight:600;color:var(--green-dk);
+  min-width:36px;text-align:right;flex-shrink:0}
+.demand-type{display:inline-flex;font-size:10px;font-weight:600;
+  padding:1px 6px;border-radius:5px;margin-right:4px}
+.demand-type.Projeto{background:var(--blue-bg);color:var(--blue-dk)}
+.demand-type.Demanda{background:var(--green-bg);color:var(--green-dk)}
+.demand-type.Bug{background:var(--red-bg);color:var(--red-dk)}
+.demand-type.Melhoria{background:var(--amber-bg);color:var(--amber-dk)}
+.demand-type.extra{background:var(--purple-bg);color:var(--purple-dk)}
+
+/* ── Formulário de lançamento ─────────────────────────────────────────────── */
+.form-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:16px;position:sticky;top:76px}
+.form-selected-name{font-size:13px;font-weight:600;color:var(--text);
+  margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border-light)}
+.pct-label{font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--text2);margin-bottom:8px}
+.pct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:12px}
+.pct-btn{padding:7px 4px;text-align:center;font-size:12px;font-weight:500;
+  border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;
+  background:var(--surface);color:var(--text2);transition:all .12s}
+.pct-btn:hover{border-color:var(--blue);color:var(--blue-dk);background:var(--blue-bg)}
+.pct-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.pct-btn.pct-100{grid-column:span 2}
+.pct-custom{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.pct-custom input{flex:1;padding:7px 10px;border:1px solid var(--border);
+  border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--bg)}
+.pct-custom input:focus{border-color:var(--blue);outline:none;background:var(--surface)}
+
+/* ── Resumo do dia ────────────────────────────────────────────────────────── */
+.day-summary{margin-bottom:14px;padding:10px 12px;border-radius:var(--radius);
+  border:1px solid var(--border-light);background:var(--bg)}
+.day-summary-row{display:flex;justify-content:space-between;align-items:center;
+  font-size:12px;margin-bottom:3px}
+.day-sum-val{font-weight:600;font-size:15px}
+.day-sum-val.ok{color:var(--green-dk)}
+.day-sum-val.over{color:var(--red-dk)}
+.day-sum-val.partial{color:var(--amber-dk)}
+.day-bar{height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;margin-top:6px}
+.day-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+.day-bar-fill.ok{background:var(--green)}
+.day-bar-fill.over{background:var(--red)}
+.day-bar-fill.partial{background:var(--amber)}
+
+/* ── Lançamentos do dia ───────────────────────────────────────────────────── */
+.lancamento-row{display:flex;align-items:center;gap:8px;padding:6px 0;
+  border-bottom:1px solid var(--border-light)}
+.lancamento-row:last-child{border-bottom:none}
+.lanc-nome{flex:1;font-size:12px;color:var(--text);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.lanc-pct{font-size:12px;font-weight:600;color:var(--green-dk);min-width:32px;text-align:right}
+.lanc-del{background:none;border:none;cursor:pointer;color:var(--text3);
+  font-size:14px;padding:2px 4px;border-radius:4px;flex-shrink:0}
+.lanc-del:hover{color:var(--red-dk);background:var(--red-bg)}
+
+/* ── Alertas ──────────────────────────────────────────────────────────────── */
+.alert{border-radius:var(--radius);padding:10px 14px;font-size:12px;
+  display:flex;gap:8px;align-items:flex-start;margin-bottom:10px}
+.alert.warn{background:var(--amber-bg);border:1px solid var(--amber);color:var(--amber-dk)}
+.alert.info{background:var(--blue-bg);border:1px solid #B5D4F4;color:var(--blue-dk)}
+.alert.danger{background:var(--red-bg);border:1px solid #F7C1C1;color:var(--red-dk)}
+.alert.success{background:var(--green-bg);border:1px solid #C0DD97;color:var(--green-dk)}
+
+/* ── Botões ───────────────────────────────────────────────────────────────── */
+.btn{padding:9px 16px;border-radius:var(--radius);font-size:13px;font-weight:600;
+  cursor:pointer;border:none;transition:all .15s;display:inline-flex;
+  align-items:center;gap:6px}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:var(--blue-dk)}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{background:var(--bg)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-row{display:flex;gap:8px;margin-top:14px}
+
+/* ── Modal de confirmação ─────────────────────────────────────────────────── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);
+  z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-lg);
+  padding:28px 32px;max-width:380px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:8px}
+.modal-body{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.empty{text-align:center;padding:40px 20px;color:var(--text2)}
+.empty-icon{font-size:32px;margin-bottom:8px}
+.empty-text{font-size:13px}
+
+/* ── Toast ────────────────────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:var(--radius);
+  font-size:13px;font-weight:500;color:#fff;z-index:300;opacity:0;
+  transition:opacity .25s;pointer-events:none}
+#toast.show{opacity:1}
+#toast.ok{background:#3B6D11}
+#toast.err{background:#A32D2D}
+#toast.warn{background:#854F0B}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ────────────────────────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-title">Alocação · Negócios TI</div>
+    <div class="login-sub">Acesso restrito · Informe suas credenciais</div>
+    <div class="field">
+      <label>Usuário</label>
+      <input type="text" id="l-user" placeholder="seu usuário" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="l-err"></div>
+  </div>
+</div>
+
+<!-- ── APP ──────────────────────────────────────────────────────────────────── -->
+<div id="app">
+  <header class="header">
+    <div class="header-left">
+      <div>
+        <div class="header-title">Gestão de Projetos e Demandas <span style="font-size:11px;background:var(--blue-bg);color:var(--blue-dk);padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v3.0</span></div>
+        <div class="header-sub">Negócios TI · SP</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="user-badge">
+        <span id="hd-nome"></span>
+        <span class="role" id="hd-role"></span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="nav-section">Equipe SP</div>
+      <div id="nav-analistas-sp"></div>
+      <div class="nav-section" style="margin-top:8px">Equipe UDIA</div>
+      <div id="nav-analistas-udia"></div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <div class="page-header">
+        <div class="page-title" id="pg-title">Alocação</div>
+        <div class="page-sub" id="pg-sub"></div>
+      </div>
+
+      <!-- Seletor de datas -->
+      <div class="date-strip" id="date-strip"></div>
+
+      <!-- Alerta de data especial -->
+      <div id="date-alert" style="display:none;margin-bottom:14px"></div>
+
+      <!-- Painel principal -->
+      <div class="panel-grid">
+        <!-- Coluna esquerda: demandas -->
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <div class="card-title">Demandas em aberto</div>
+            <div id="demand-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Atividades extras</div>
+            <div id="extra-list"></div>
+          </div>
+        </div>
+
+        <!-- Coluna direita: formulário -->
+        <div>
+          <div class="form-card" id="form-card">
+            <div class="card-title">Lançar alocação</div>
+            <div id="day-summary"></div>
+            <div id="form-body">
+              <div class="empty">
+                <div class="empty-icon">👆</div>
+                <div class="empty-text">Selecione uma demanda ao lado para lançar</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal confirmação -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-btns" id="modal-btns"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── CONFIGURAÇÕES ────────────────────────────────────────────────────────────
+
+const FERIADOS_2026 = new Set([
+  '2026-01-01','2026-02-16','2026-02-17','2026-02-18',
+  '2026-04-03','2026-04-05','2026-04-21','2026-05-01',
+  '2026-06-04','2026-09-07','2026-10-12','2026-11-02',
+  '2026-11-15','2026-11-20','2026-12-25'
+]);
+
+const FERIADO_NOMES = {
+  '2026-01-01':'Confraternização Universal','2026-02-16':'Carnaval',
+  '2026-02-17':'Carnaval','2026-02-18':'Quarta de Cinzas',
+  '2026-04-03':'Paixão de Cristo','2026-04-05':'Páscoa',
+  '2026-04-21':'Tiradentes','2026-05-01':'Dia do Trabalho',
+  '2026-06-04':'Corpus Christi','2026-09-07':'Independência do Brasil',
+  '2026-10-12':'Nossa Sra. Aparecida','2026-11-02':'Finados',
+  '2026-11-15':'Proclamação da República','2026-11-20':'Consciência Negra',
+  '2026-12-25':'Natal'
+};
+
+const ATIVIDADES_EXTRAS = [
+  'Reunião interna',
+  'Reunião emergencial de cliente',
+  'Capacitação / Treinamento',
+  'Atividade administrativa',
+  'Suporte interno',
+  'Validação de fatura',
+  'Atuação em demandas nas férias de outro analista',
+  'Atuação em macros'
+];
+
+const USUARIOS = {
+  'fernando':  { senha:'franco2026',   nome:'Fernando Franco',    perfil:'gestor', equipe:'SP' },
+  'jardel':    { senha:'jardel2026',   nome:'Jardel Silva',       perfil:'gestor', equipe:'SP' },
+  'nilza':     { senha:'nilza2026',    nome:'Nilza Oliveira',     perfil:'gestor', equipe:'UDIA' },
+  'bruno':     { senha:'saraiva2026',  nome:'Bruno Saraiva',      perfil:'analista', equipe:'SP' },
+  'camila':    { senha:'camila2026',   nome:'Camila Moraes',      perfil:'analista', equipe:'SP' },
+  'carolina':  { senha:'carol2026',    nome:'Carolina Andrade',   perfil:'analista', equipe:'SP' },
+  'matheus':   { senha:'matheus2026',  nome:'Matheus Lopes',      perfil:'analista', equipe:'SP' },
+  'samuel':    { senha:'samuel2026',   nome:'Samuel Pinto',       perfil:'analista', equipe:'SP' },
+};
+
+// Mapa nome completo → login (para cruzar com STATE.demands)
+const NOME_LOGIN = {};
+Object.entries(USUARIOS).forEach(([login, u]) => { NOME_LOGIN[u.nome] = login; });
+
+const ANALISTAS_SP   = ['Bruno Saraiva','Camila Moraes','Carolina Andrade','Matheus Lopes','Samuel Pinto'];
+const ANALISTAS_UDIA = ['Ana Julia Sant Anna','Ana Paula Alves','Antonio Coutinho',
+                        'Fabio Freitas','Gisdeidz Alves','Brenda Reis',
+                        'Ana Carolina Andrade','Gabriel Gomes','Nilza Oliveira'];
+
+// ── ESTADO GLOBAL ────────────────────────────────────────────────────────────
+let currentUser  = null;   // objeto do usuário logado
+let viewAnalista = null;   // nome do analista sendo visualizado
+let selectedDate = null;   // 'YYYY-MM-DD'
+let selectedItem = null;   // {id, nome, tipo, extra?}
+let selectedPct  = null;   // número 5..200
+let lancamentos  = {};     // cache local: {'YYYY-MM-DD:NomeAnalista': [{id,nome,tipo,pct,extra}]}
+
+// ── UTILITÁRIOS ──────────────────────────────────────────────────────────────
+function today(){ return new Date().toISOString().split('T')[0]; }
+function isoToDate(s){ const [y,m,d]=s.split('-'); return new Date(y,m-1,d); }
+function formatDate(s){
+  const d=isoToDate(s);
+  return d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
+}
+function getDayOfWeek(s){ return isoToDate(s).getDay(); } // 0=dom,6=sab
+function isFds(s){ const d=getDayOfWeek(s); return d===0||d===6; }
+function isFeriado(s){ return FERIADOS_2026.has(s); }
+function isBlockedDate(s){
+  if(currentUser && currentUser.perfil==='gestor') return false;
+  return !isInCurrentWeek(s);
+}
+function isInCurrentWeek(dateStr){
+  const d = isoToDate(dateStr);
+  const now = new Date();
+  const mon = new Date(now); mon.setDate(now.getDate()-now.getDay()+1);
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  mon.setHours(0,0,0,0); sun.setHours(23,59,59,999);
+  return d >= mon && d <= sun;
+}
+
+function getWeekDays(){
+  const now = new Date();
+  const mon = new Date(now); mon.setDate(now.getDate()-now.getDay()+1);
+  const days = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(mon); d.setDate(mon.getDate()+i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  return days;
+}
+
+function lancKey(date, analista){ return `${date}:${analista}`; }
+
+function getDayLancamentos(date, analista){
+  return lancamentos[lancKey(date, analista)] || [];
+}
+
+function getDayTotal(date, analista){
+  return getDayLancamentos(date, analista).reduce((s,l)=>s+l.pct, 0);
+}
+
+function showToast(msg, type='ok'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>{ t.className=''; }, 3200);
+}
+
+function showModal(title, body, btns){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  const bb = document.getElementById('modal-btns');
+  bb.innerHTML = '';
+  btns.forEach(b=>{
+    const el = document.createElement('button');
+    el.className = 'btn ' + (b.cls||'btn-ghost');
+    el.textContent = b.label;
+    el.onclick = ()=>{ closeModal(); b.action(); };
+    bb.appendChild(el);
+  });
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+// ── LOGIN ────────────────────────────────────────────────────────────────────
+function doLogin(){
+  const user = (document.getElementById('l-user').value||'').trim().toLowerCase();
+  const pass = (document.getElementById('l-pass').value||'').trim();
+  const err  = document.getElementById('l-err');
+  if(!user||!pass){ err.textContent='Preencha usuário e senha.'; return; }
+  const u = USUARIOS[user];
+  if(!u||u.senha!==pass){ err.textContent='Usuário ou senha incorretos.'; return; }
+  currentUser = { login:user, ...u };
+  err.textContent='';
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  document.getElementById('hd-nome').textContent = u.nome;
+  document.getElementById('hd-role').textContent = u.perfil==='gestor' ? '· Gestor' : '· Analista';
+  // Analista vê a si próprio por padrão; gestor vê o primeiro SP
+  viewAnalista = (u.perfil==='analista') ? u.nome : ANALISTAS_SP[0];
+  buildNav();
+  selectAnalista(viewAnalista);
+}
+
+document.getElementById('l-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('l-user').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('l-pass').focus(); });
+
+function doLogout(){
+  currentUser = null; viewAnalista = null; selectedDate = null;
+  selectedItem = null; selectedPct = null; lancamentos = {};
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+}
+
+// ── NAV SIDEBAR ──────────────────────────────────────────────────────────────
+function buildNav(){
+  const spEl   = document.getElementById('nav-analistas-sp');
+  const udiaEl = document.getElementById('nav-analistas-udia');
+  spEl.innerHTML = '';
+  udiaEl.innerHTML = '';
+
+  const canSeeAll = currentUser.perfil==='gestor';
+
+  ANALISTAS_SP.forEach(nome=>{
+    if(!canSeeAll && currentUser.nome!==nome) return;
+    spEl.appendChild(navItem(nome,'SP'));
+  });
+
+  ANALISTAS_UDIA.forEach(nome=>{
+    if(!canSeeAll && currentUser.nome!==nome) return;
+    udiaEl.appendChild(navItem(nome,'UDIA'));
+  });
+}
+
+function navItem(nome, equipe){
+  const el = document.createElement('div');
+  el.className = 'nav-analista-name';
+  el.dataset.nome = nome;
+  const firstName = nome.split(' ')[0];
+  el.innerHTML = `<span>${firstName}</span><span class="nav-analista-tag ${equipe.toLowerCase()}">${equipe}</span>`;
+  el.onclick = ()=> selectAnalista(nome);
+  return el;
+}
+
+function selectAnalista(nome){
+  viewAnalista = nome;
+  document.querySelectorAll('.nav-analista-name').forEach(el=>{
+    el.style.fontWeight = el.dataset.nome===nome ? '600' : '';
+    el.style.color = el.dataset.nome===nome ? 'var(--blue-dk)' : '';
+  });
+  document.getElementById('pg-title').textContent = 'Alocação · ' + nome.split(' ')[0];
+  document.getElementById('pg-sub').textContent = 'Lançamento diário de % por demanda';
+  selectedDate = today();
+  selectedItem = null;
+  selectedPct  = null;
+  renderDateStrip();
+  loadLancamentos(selectedDate).then(()=>{
+    renderDemandas();
+    renderFormCard();
+  });
+}
+
+// ── DATE STRIP ───────────────────────────────────────────────────────────────
+function renderDateStrip(){
+  const strip = document.getElementById('date-strip');
+  strip.innerHTML = '';
+  const days = getWeekDays();
+  const td = today();
+  days.forEach(d=>{
+    const dt = isoToDate(d);
+    const blocked = isBlockedDate(d);
+    const fds = isFds(d);
+    const fer = isFeriado(d);
+    const isToday = d===td;
+    const total = getDayTotal(d, viewAnalista);
+    const hasData = total > 0;
+
+    const btn = document.createElement('div');
+    btn.className = 'date-btn'
+      + (d===selectedDate?' active':'')
+      + (isToday&&d!==selectedDate?' today-btn':'')
+      + (blocked?' blocked':'')
+      + (hasData&&d!==selectedDate? (total>100?' has-overtime': ' has-data'):'');
+    btn.innerHTML = `
+      <div class="date-num">${dt.getDate().toString().padStart(2,'0')}</div>
+      <div class="date-day">${dt.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')}</div>
+      ${fer?`<div class="date-label feriado">Feriado</div>`:
+        fds?`<div class="date-label fds">Folga</div>`:
+        isToday?`<div class="date-label today">Hoje</div>`:
+        hasData?`<div class="date-label" style="color:var(--green-dk)">${Math.round(total*100)}%</div>`:
+        `<div class="date-label">&nbsp;</div>`}
+    `;
+    if(!blocked){
+      btn.onclick = ()=> selectDate(d);
+    }
+    strip.appendChild(btn);
+  });
+}
+
+function selectDate(d){
+  selectedDate = d;
+  selectedItem = null;
+  selectedPct  = null;
+  renderDateStrip();
+  checkDateAlert(d);
+  loadLancamentos(d).then(()=>{
+    renderDemandas();
+    renderFormCard();
+  });
+}
+
+function checkDateAlert(d){
+  const el = document.getElementById('date-alert');
+  if(isFeriado(d)){
+    el.style.display='block';
+    el.innerHTML=`<div class="alert warn">⚠️ <b>${FERIADO_NOMES[d]||'Feriado'}</b> — Lançamento em feriado requer confirmação ao salvar.</div>`;
+  } else if(isFds(d)){
+    el.style.display='block';
+    const tipo = isoToDate(d).getDay()===6?'Sábado':'Domingo';
+    el.innerHTML=`<div class="alert warn">⚠️ <b>${tipo}</b> — Lançamento fora do expediente normal. Confirmação será solicitada ao salvar.</div>`;
+  } else {
+    el.style.display='none';
+    el.innerHTML='';
+  }
+}
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+async function storageGet(key){
+  try{
+    const r = await window.storage.get(key, true);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+
+async function storageSet(key, val){
+  try{
+    await window.storage.set(key, JSON.stringify(val), true);
+    return true;
+  }catch(e){ console.error('Storage error:', e); return false; }
+}
+
+async function loadLancamentos(date){
+  const key = `aloc:${date}:${viewAnalista}`;
+  const data = await storageGet(key);
+  lancamentos[lancKey(date, viewAnalista)] = data || [];
+}
+
+async function saveLancamento(lancamento){
+  const key = `aloc:${selectedDate}:${viewAnalista}`;
+  const list = getDayLancamentos(selectedDate, viewAnalista);
+  // Verificar se já existe (por id ou nome)
+  const existing = list.findIndex(l=>l.id===lancamento.id&&l.nome===lancamento.nome);
+  if(existing>=0) list[existing] = lancamento;
+  else list.push(lancamento);
+  lancamentos[lancKey(selectedDate, viewAnalista)] = list;
+  return await storageSet(key, list);
+}
+
+async function deleteLancamento(idx){
+  const key = `aloc:${selectedDate}:${viewAnalista}`;
+  const list = getDayLancamentos(selectedDate, viewAnalista);
+  list.splice(idx, 1);
+  lancamentos[lancKey(selectedDate, viewAnalista)] = list;
+  return await storageSet(key, list);
+}
+
+// ── DEMANDAS ──────────────────────────────────────────────────────────────────
+function getDemandasDoAnalista(){
+  // Busca no STATE injetado pelo bat
+  try{
+    const equipe = ANALISTAS_SP.includes(viewAnalista) ? 'SP' : 'UDIA';
+    const state = equipe==='SP' ? STATE_SP : STATE_UDIA;
+    const demands = (state.demands||{})[viewAnalista] || [];
+    return demands.filter(d=> d.status && d.status !== 'Encerrada');
+  }catch(e){ return []; }
+}
+
+function renderDemandas(){
+  const list = document.getElementById('demand-list');
+  const lancadosDia = getDayLancamentos(selectedDate, viewAnalista);
+  const demands = getDemandasDoAnalista();
+
+  if(!demands.length){
+    list.innerHTML = '<div class="empty"><div class="empty-text">Nenhuma demanda em aberto</div></div>';
+  } else {
+    list.innerHTML = demands.map((d,i)=>{
+      const lancado = lancadosDia.find(l=>l.id===d.id);
+      const sel = selectedItem && selectedItem.id===d.id && !selectedItem.extra;
+      const pctStr = lancado ? `${Math.round(lancado.pct*100)}%` : '';
+      return `<div class="demand-item${sel?' selected':''}${lancado?' lancado':''}"
+        onclick="selectDemand(${i}, false)">
+        <div class="demand-check">${lancado?'✓':sel?'·':''}</div>
+        <div class="demand-info">
+          <div class="demand-nome" title="${d.titulo}">${d.titulo}</div>
+          <div class="demand-meta">
+            <span class="demand-type ${d.tipo}">${d.tipo}</span>
+            ${d.operacao||''}
+          </div>
+        </div>
+        ${lancado?`<div class="demand-pct">${pctStr}</div>`:''}
+      </div>`;
+    }).join('');
+  }
+
+  // Extras
+  const extList = document.getElementById('extra-list');
+  extList.innerHTML = ATIVIDADES_EXTRAS.map((nome,i)=>{
+    const lancado = lancadosDia.find(l=>l.extra&&l.nome===nome);
+    const sel = selectedItem && selectedItem.extra && selectedItem.nome===nome;
+    const pctStr = lancado ? `${Math.round(lancado.pct*100)}%` : '';
+    return `<div class="demand-item${sel?' selected':''}${lancado?' lancado':''}"
+      onclick="selectDemand(${i}, true)">
+      <div class="demand-check">${lancado?'✓':sel?'·':''}</div>
+      <div class="demand-info">
+        <div class="demand-nome">${nome}</div>
+        <div class="demand-meta"><span class="demand-type extra">Atividade extra</span></div>
+      </div>
+      ${lancado?`<div class="demand-pct">${pctStr}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function selectDemand(idx, isExtra){
+  const demands = getDemandasDoAnalista();
+  if(isExtra){
+    selectedItem = { id: 'extra_'+idx, nome: ATIVIDADES_EXTRAS[idx], tipo:'extra', extra:true };
+  } else {
+    const d = demands[idx];
+    selectedItem = { id: d.id||d.titulo, nome: d.titulo, tipo: d.tipo, extra: false };
+  }
+  selectedPct = null;
+  renderDemandas();
+  renderFormCard();
+}
+
+// ── FORMULÁRIO ────────────────────────────────────────────────────────────────
+function renderFormCard(){
+  const body = document.getElementById('form-body');
+  const sumEl = document.getElementById('day-summary');
+
+  // Resumo do dia
+  const lancs = getDayLancamentos(selectedDate, viewAnalista);
+  const total = lancs.reduce((s,l)=>s+l.pct, 0);
+  const totalPct = Math.round(total*100);
+  const cls = totalPct > 100 ? 'over' : totalPct >= 90 ? 'ok' : 'partial';
+  const barW = Math.min(100, totalPct);
+
+  if(lancs.length){
+    sumEl.innerHTML = `
+      <div class="day-summary">
+        <div class="day-summary-row">
+          <span style="font-size:12px;color:var(--text2)">Total do dia</span>
+          <span class="day-sum-val ${cls}">${totalPct}%</span>
+        </div>
+        <div class="day-bar"><div class="day-bar-fill ${cls}" style="width:${barW}%"></div></div>
+        ${lancs.map((l,i)=>`
+          <div class="lancamento-row">
+            <div class="lanc-nome" title="${l.nome}">${l.nome}</div>
+            <div class="lanc-pct">${Math.round(l.pct*100)}%</div>
+            ${canEdit()?`<button class="lanc-del" onclick="confirmDelete(${i})" title="Remover">✕</button>`:''}
+          </div>
+        `).join('')}
+      </div>`;
+  } else {
+    sumEl.innerHTML = `<div class="alert info" style="margin-bottom:12px">Nenhum lançamento para esta data.</div>`;
+  }
+
+  if(!selectedItem){
+    body.innerHTML = `<div class="empty"><div class="empty-icon">👆</div>
+      <div class="empty-text">Selecione uma demanda ao lado</div></div>`;
+    return;
+  }
+
+  body.innerHTML = `
+    <div class="form-selected-name">${selectedItem.nome}</div>
+    <div class="pct-label">Percentual do dia (base 8h)</div>
+    <div class="pct-grid">
+      ${[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95].map(p=>`
+        <button class="pct-btn${selectedPct===p?' active':''}" onclick="setPct(${p})">${p}%</button>
+      `).join('')}
+      <button class="pct-btn pct-100${selectedPct===100?' active':''}" onclick="setPct(100)">100% — Dia cheio</button>
+    </div>
+    <div class="pct-custom">
+      <input type="number" id="pct-custom-input" min="1" max="200" placeholder="Outro %" value="${selectedPct||''}" oninput="setPctCustom(this.value)">
+      <span style="font-size:12px;color:var(--text2)">${selectedPct?`≈ ${horas(selectedPct/100)}`:''}</span>
+    </div>
+    ${selectedPct?`<div class="alert info" style="margin-bottom:8px">
+      <b>${selectedPct}%</b> = ${horas(selectedPct/100)} do dia de trabalho</div>`:''}
+    <div class="btn-row">
+      <button class="btn btn-blue" onclick="confirmarLancamento()" ${!selectedPct?'disabled':''}>Lançar</button>
+      <button class="btn btn-ghost" onclick="cancelarSelecao()">Cancelar</button>
+    </div>
+  `;
+}
+
+function horas(frac){
+  const mins = Math.round(frac * 480);
+  const h = Math.floor(mins/60);
+  const m = mins%60;
+  if(h===0) return `${m}min`;
+  if(m===0) return `${h}h`;
+  return `${h}h${m.toString().padStart(2,'0')}`;
+}
+
+function setPct(p){ selectedPct=p; renderFormCard(); }
+function setPctCustom(v){ selectedPct = v?parseInt(v):null; }
+function cancelarSelecao(){ selectedItem=null; selectedPct=null; renderDemandas(); renderFormCard(); }
+function canEdit(){
+  if(!currentUser) return false;
+  if(currentUser.perfil==='gestor') return true;
+  return currentUser.nome === viewAnalista;
+}
+
+function confirmarLancamento(){
+  if(!selectedItem || !selectedPct) return;
+
+  const lancs = getDayLancamentos(selectedDate, viewAnalista);
+  const totalAtual = lancs.reduce((s,l)=>s+(l.nome===selectedItem.nome?0:l.pct), 0);
+  const novoTotal = totalAtual + (selectedPct/100);
+
+  const doSave = ()=>{
+    const lanc = { id: selectedItem.id, nome: selectedItem.nome,
+                   tipo: selectedItem.tipo, pct: selectedPct/100,
+                   extra: selectedItem.extra||false };
+    saveLancamento(lanc).then(ok=>{
+      if(ok){
+        showToast(`${selectedItem.nome.substring(0,30)} — ${selectedPct}% lançado!`, 'ok');
+        selectedItem=null; selectedPct=null;
+        renderDateStrip();
+        renderDemandas();
+        renderFormCard();
+      } else {
+        showToast('Erro ao salvar. Tente novamente.', 'err');
+      }
+    });
+  };
+
+  // Verificar data especial
+  const dataEspecial = isFeriado(selectedDate) || isFds(selectedDate);
+  const overTotal = novoTotal > 1;
+
+  if(dataEspecial && overTotal){
+    const tipo = isFeriado(selectedDate) ? FERIADO_NOMES[selectedDate]||'Feriado' : 'Fim de semana';
+    showModal('Atenção — Data especial e hora extra',
+      `Você está lançando em <b>${tipo}</b> com total de <b>${Math.round(novoTotal*100)}%</b> (acima de 100%). Confirma hora extra neste dia especial?`,
+      [{label:'Sim, confirmar', cls:'btn-blue', action: doSave},
+       {label:'Cancelar', action:()=>{}}]);
+  } else if(dataEspecial){
+    const tipo = isFeriado(selectedDate) ? FERIADO_NOMES[selectedDate]||'Feriado' : 'Fim de semana';
+    showModal('Lançamento em data especial',
+      `Este dia é <b>${tipo}</b>. Confirma o lançamento mesmo assim?`,
+      [{label:'Sim, lançar', cls:'btn-blue', action: doSave},
+       {label:'Cancelar', action:()=>{}}]);
+  } else if(overTotal){
+    showModal('Hora extra',
+      `O total do dia ficará em <b>${Math.round(novoTotal*100)}%</b> (acima de 100%). O analista fará hora extra neste dia?`,
+      [{label:'Sim, hora extra', cls:'btn-blue', action: doSave},
+       {label:'Ajustar %', action:()=>{}}]);
+  } else {
+    doSave();
+  }
+}
+
+function confirmDelete(idx){
+  const lancs = getDayLancamentos(selectedDate, viewAnalista);
+  const l = lancs[idx];
+  showModal('Remover lançamento',
+    `Remover <b>${l.nome}</b> (${Math.round(l.pct*100)}%) desta data?`,
+    [{label:'Remover', cls:'btn-blue', action:()=>{
+      deleteLancamento(idx).then(()=>{
+        showToast('Lançamento removido.', 'warn');
+        renderDateStrip();
+        renderDemandas();
+        renderFormCard();
+      });
+    }},
+    {label:'Cancelar', action:()=>{}}]);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+// Placeholders do STATE (serão sobrescritos pelo processar_bi.py)
+let STATE_SP   = { demands:{}, analysts:[] };
+let STATE_UDIA = { demands:{}, analysts:[] };
+
+</script>
+</body>
+</html>
