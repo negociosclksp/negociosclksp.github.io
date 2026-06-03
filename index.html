@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03062026_104610">
+  <meta name="bi-version" content="03062026_123142">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -73,9 +73,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* SIDEBAR */
 
-.sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:44px;left:0;height:calc(100vh - 44px);z-index:100}
 
-.sidebar-header{padding:52px 20px 16px;border-bottom:1px solid var(--border-light)}
+.sidebar-header{padding:16px 20px;border-bottom:1px solid var(--border-light)}
 
 .sidebar-logo-img{width:110px;display:block;margin-bottom:14px}
 
@@ -6379,7 +6379,7 @@ let STATE_UDIA = { demands:{}, analysts:[] };
 
 // ── INIT VISUALIZAR (chamado quando page-visualizar fica ativa) ──────────
 function initVisualizar(){
-  if(typeof visAnalista === 'undefined') return;
+  if(!visMes) visMes = new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
   const now = new Date();
   visMes = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   visSemana = getCurrentWeekIdx(visMes);
@@ -6392,15 +6392,19 @@ function initVisualizar(){
 
 // ── INIT APONTAMENTO (chamado quando page-apontamento fica ativa) ────────
 function initApontamento(){
-  if(typeof viewAnalista === 'undefined') return;
+  // Garantir que viewAnalista tem um valor
+  if(!viewAnalista) viewAnalista = ANALISTAS_SP[0];
+  const sel = document.getElementById('analista-select');
+  if(sel){
+    if(!sel.value) sel.value = viewAnalista;
+    else viewAnalista = sel.value;
+  }
   const now = new Date();
   selectedMes  = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   selectedWeek = getCurrentWeekIndex(selectedMes);
   const mSel = document.getElementById('mes-select');
   if(mSel) mSel.value = selectedMes;
   buildSemanaSelect();
-  const sel = document.getElementById('analista-select');
-  if(sel) sel.value = viewAnalista;
   selectedDate = today();
   const days = getWeekDays();
   Promise.all(days.map(d => loadLancamentos(d))).then(()=>{
