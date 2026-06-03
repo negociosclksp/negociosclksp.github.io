@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03062026_151039">
+  <meta name="bi-version" content="03062026_152553">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -5925,6 +5925,26 @@ function isInCurrentWeek(dateStr){
 function getWeekDays(){
   const weeks = getWeeksOfMes(selectedMes);
   return weeks[selectedWeek] || weeks[0] || [];
+}
+
+// ── FUNÇÕES DE DATA (compartilhadas apontamento + visualizar) ────────────
+function today(){ return new Date().toISOString().split('T')[0]; }
+function isoToDate(s){ const [y,m,d]=s.split('-'); return new Date(y,m-1,d); }
+function isFds(s){ const d=isoToDate(s).getDay(); return d===0||d===6; }
+function isFeriado(s){ return FERIADOS_NAC.has(s); }
+function getWeeksOfMes(mes){
+  const [y,m]=mes.split('-').map(Number);
+  const first=new Date(y,m-1,1), last=new Date(y,m,0);
+  const weeks=[];
+  let cur=new Date(first);
+  cur.setDate(cur.getDate()-(cur.getDay()===0?6:cur.getDay()-1));
+  while(cur<=last){
+    const wk=[];
+    for(let i=0;i<7;i++){ const d=new Date(cur); d.setDate(cur.getDate()+i); wk.push(d.toISOString().split('T')[0]); }
+    weeks.push(wk);
+    cur.setDate(cur.getDate()+7);
+  }
+  return weeks;
 }
 
 function getCurrentWeekIndex(mesStr){
