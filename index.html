@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03062026_152553">
+  <meta name="bi-version" content="03062026_161043">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -5925,6 +5925,33 @@ function isInCurrentWeek(dateStr){
 function getWeekDays(){
   const weeks = getWeeksOfMes(selectedMes);
   return weeks[selectedWeek] || weeks[0] || [];
+}
+
+// ── STORAGE GET (usado por apontamento + visualizar) ─────────────────────
+async function storageGet(key){
+  try{
+    const r = await window.storage.get(key, true);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+
+// ── ALIASES E MODAIS ─────────────────────────────────────────────────────
+function getCurrentWeekIdx(mes){ return getCurrentWeekIndex(mes); }
+
+function showConfirmModal(title, body, onConfirm){
+  const overlay = document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300;display:flex;align-items:center;justify-content:center';
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:var(--radius-lg);padding:24px 28px;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.15)">
+    <div style="font-size:14px;font-weight:600;margin-bottom:8px">${title}</div>
+    <div style="font-size:12px;color:var(--text-2);margin-bottom:18px;line-height:1.6">${body}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="this.closest('[style*=fixed]').remove()" style="padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border);background:none;cursor:pointer;font-size:12px">Cancelar</button>
+      <button id="_confirm_ok" style="padding:7px 14px;border-radius:var(--radius);border:none;background:var(--blue);color:#fff;cursor:pointer;font-size:12px;font-weight:600">Confirmar</button>
+    </div>
+  </div>`;
+  overlay.querySelector('#_confirm_ok').onclick=()=>{ overlay.remove(); onConfirm(); };
+  overlay.onclick=e=>{ if(e.target===overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
 }
 
 // ── FUNÇÕES DE DATA (compartilhadas apontamento + visualizar) ────────────
