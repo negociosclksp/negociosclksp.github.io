@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03062026_145523">
+  <meta name="bi-version" content="03062026_151039">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -6159,13 +6159,21 @@ async function deleteLancamento(idx){
 
 // ── DEMANDAS ──────────────────────────────────────────────────────────────────
 function getDemandasDoAnalista(){
-  // Busca no STATE injetado pelo bat
   try{
     const equipe = ANALISTAS_SP.includes(viewAnalista) ? 'SP' : 'UDIA';
     const state = equipe==='SP' ? STATE_SP : STATE_UDIA;
-    const demands = (state.demands||{})[viewAnalista] || [];
-    return demands.filter(d=> d.status && d.status !== 'Encerrada');
-  }catch(e){ return []; }
+    const allDemands = state.demands || {};
+    const keys = Object.keys(allDemands);
+    // Tentar match exato primeiro, depois case-insensitive
+    let demList = allDemands[viewAnalista];
+    if(!demList){
+      const keyMatch = keys.find(k => k.toLowerCase() === viewAnalista.toLowerCase());
+      if(keyMatch) demList = allDemands[keyMatch];
+    }
+    const demands = demList || [];
+    console.log('[demands] analista:', viewAnalista, '| keys:', keys, '| found:', demands.length);
+    return demands.filter(d=> !d.status || d.status !== 'Encerrada');
+  }catch(e){ console.error('[demands] erro:', e); return []; }
 }
 
 function renderDemandas(){
