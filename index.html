@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="05062026_163324">
+  <meta name="bi-version" content="05062026_171323">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -936,6 +936,18 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 #toast.warn{background:#854F0B}
 
 
+
+.nav-lock-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center}
+.nav-lock-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 32px;width:300px;box-shadow:0 4px 24px rgba(0,0,0,.12)}
+.nav-lock-title{font-size:14px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.nav-lock-sub{font-size:12px;color:var(--text-2);margin-bottom:18px}
+.nav-lock-field{margin-bottom:12px}
+.nav-lock-field input{width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none}
+.nav-lock-field input:focus{border-color:var(--blue)}
+.nav-lock-btn{width:100%;padding:9px;font-size:13px;font-weight:600;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);cursor:pointer}
+.nav-lock-btn:hover{background:var(--blue-dk)}
+.nav-lock-err{font-size:11px;color:var(--red-dk);margin-top:8px;text-align:center;min-height:14px}
+
 </style>
 
 </head>
@@ -1019,11 +1031,11 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
       </div>
     </div>
 
-    <div class="nav-item" data-page="visualizar" id="nav-visualizar">
+    <div class="nav-item" data-page="visualizar" id="nav-visualizar" data-locked="true">
       <span class="nav-icon">👁</span> Visualizar Alocações
     </div>
 
-    <div class="nav-item" data-page="apontamento" id="nav-apontamento">
+    <div class="nav-item" data-page="apontamento" id="nav-apontamento" data-locked="true">
       <span class="nav-icon">📝</span> Apontamento de Horas
       <span style="font-size:9px;background:var(--amber-bg);color:var(--amber-dk);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:4px">Em Dev</span>
     </div>
@@ -1708,6 +1720,65 @@ const CHIPS_USERS = {
 };
 
 // Declaração global para acesso fora do try{}
+window.NAV_LOCK_PASS = 'franco2026';
+window.navLockUnlocked = false;
+window.navLockPendingPage = null;
+
+// ── NAV LOCK (Apontamento + Visualizar) ──────────────────────────────────
+
+function navLockRequest(page){
+  if(window.navLockUnlocked){
+    // Já desbloqueado — navegar direto
+    _navLockGo(page);
+    return;
+  }
+  window.navLockPendingPage = page;
+  // Criar overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'nav-lock-overlay';
+  overlay.id = 'nav-lock-overlay';
+  overlay.innerHTML = `
+    <div class="nav-lock-box">
+      <div class="nav-lock-title">🔒 Área em Desenvolvimento</div>
+      <div class="nav-lock-sub">Esta seção está em construção. Insira a senha para acessar.</div>
+      <div class="nav-lock-field">
+        <input type="password" id="nav-lock-input" placeholder="Senha de acesso" autocomplete="current-password">
+      </div>
+      <button class="nav-lock-btn" onclick="navLockSubmit()">Entrar</button>
+      <div class="nav-lock-err" id="nav-lock-err"></div>
+    </div>`;
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+  setTimeout(()=>{ const inp=document.getElementById('nav-lock-input'); if(inp) inp.focus(); }, 100);
+  document.getElementById('nav-lock-input').addEventListener('keydown', e=>{
+    if(e.key==='Enter') navLockSubmit();
+  });
+}
+
+function navLockSubmit(){
+  const val = (document.getElementById('nav-lock-input').value||'').trim();
+  if(val === window.NAV_LOCK_PASS){
+    window.navLockUnlocked = true;
+    document.getElementById('nav-lock-overlay').remove();
+    if(window.navLockPendingPage) _navLockGo(window.navLockPendingPage);
+  } else {
+    document.getElementById('nav-lock-err').textContent = 'Senha incorreta.';
+    document.getElementById('nav-lock-input').value = '';
+    document.getElementById('nav-lock-input').focus();
+  }
+}
+
+function _navLockGo(page){
+  // Simular clique no nav-item correto
+  const items = document.querySelectorAll('.nav-item:not(.team-btn):not(.nav-external)');
+  items.forEach(item => {
+    if(item.dataset.page === page){
+      item.click();
+    }
+  });
+}
+
+
 var STATE_SP   = { demands:{}, analysts:[] };
 var STATE_UDIA = { demands:{}, analysts:[] };
 
@@ -3616,6 +3687,12 @@ document.querySelectorAll('.nav-item:not(.team-btn):not(.nav-external)').forEach
 
       parentPanel.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
 
+    }
+
+    // Verificar se item está bloqueado
+    if(item.dataset.locked === 'true' && !window.navLockUnlocked){
+      navLockRequest(item.dataset.page);
+      return;
     }
 
     item.classList.add('active');
@@ -5937,8 +6014,14 @@ function getWeekDays(){
 // ── STORAGE GET (usado por apontamento + visualizar) ─────────────────────
 async function storageGet(key){
   try{
-    const r = await window.storage.get(key, true);
-    return r ? JSON.parse(r.value) : null;
+    if(window.storage){
+      const r = await window.storage.get(key, true);
+      return r ? JSON.parse(r.value) : null;
+    } else {
+      // Fallback: localStorage
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : null;
+    }
   }catch(e){ return null; }
 }
 
@@ -6189,7 +6272,12 @@ function checkDateAlert(d){
 
 async function storageSet(key, val){
   try{
-    await window.storage.set(key, JSON.stringify(val), true);
+    if(window.storage){
+      await window.storage.set(key, JSON.stringify(val), true);
+    } else {
+      // Fallback: localStorage
+      localStorage.setItem(key, JSON.stringify(val));
+    }
     return true;
   }catch(e){ console.error('Storage error:', e); return false; }
 }
@@ -6552,6 +6640,8 @@ const FERIADOS_NAC = new Set([
   '2026-11-15','2026-11-20','2026-12-25'
 ]);
 </script>
+
+
 </script>
 
 

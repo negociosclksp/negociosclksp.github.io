@@ -232,8 +232,15 @@ function buildVisSemanaSelect(){
 
 // Storage
 async function storageGet(key){
-  try{ const r=await window.storage.get(key,true); return r?JSON.parse(r.value):null; }
-  catch(e){ return null; }
+  try{
+    if(window.storage){
+      const r=await window.storage.get(key,true);
+      return r?JSON.parse(r.value):null;
+    } else {
+      const v=localStorage.getItem(key);
+      return v?JSON.parse(v):null;
+    }
+  }catch(e){ return null; }
 }
 
 async function loadAll(){
