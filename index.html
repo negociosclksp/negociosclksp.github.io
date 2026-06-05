@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="05062026_161215">
+  <meta name="bi-version" content="05062026_163324">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1707,6 +1707,10 @@ const CHIPS_USERS = {
   'samuel':   { senha: 'samuel2026',   nome: 'Samuel Pinto' },
 };
 
+// Declaração global para acesso fora do try{}
+var STATE_SP   = { demands:{}, analysts:[] };
+var STATE_UDIA = { demands:{}, analysts:[] };
+
 try {
 
 // ─── MAPEAMENTO DE ANALISTAS POR EQUIPE ─────────────────────────────────────
@@ -1771,7 +1775,8 @@ function getEquipeAnalista(nome) {
 
 }
 
-var var STATE_SP = {
+// BEGIN_STATE_SP
+STATE_SP = {
   updatedAt: "05/06/2026",
   kpis: {
     estoque: 136, emAtuacao: 77, backlog: 59, acima30: 109,
@@ -1800,7 +1805,8 @@ var var STATE_SP = {
 
 // ─── getActiveState() UDIA (dados fictícios para v2.0 - placeholder) ───────────────────
 
-var var STATE_UDIA = {
+// BEGIN_STATE_UDIA
+STATE_UDIA = {
   updatedAt: "05/06/2026",
   kpis: {
     estoque: 78, emAtuacao: 71, backlog: 7, acima30: 32,
