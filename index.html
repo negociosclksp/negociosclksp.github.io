@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="05062026_121511">
+  <meta name="bi-version" content="05062026_135748">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -6099,7 +6099,14 @@ function doLogout(){
 function onSelectAnalista(nome){
   viewAnalista = nome;
   selectedItem = null; selectedPct = null;
+  if(!selectedMes){
+    const now = new Date();
+    selectedMes = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+    selectedWeek = getCurrentWeekIndex(selectedMes);
+  }
+  if(!selectedDate) selectedDate = today();
   const days = getWeekDays();
+  console.log('[onSelect] analista:', nome, 'days:', days);
   Promise.all(days.map(d => loadLancamentos(d))).then(()=>{
     renderDateStrip();
     renderDemandas();
@@ -6446,21 +6453,31 @@ function initVisualizar(){
 
 // ── INIT APONTAMENTO (chamado quando page-apontamento fica ativa) ────────
 function initApontamento(){
-  // Garantir que viewAnalista tem um valor
+  // 1. Garantir analista
+  const aSel = document.getElementById('analista-select');
+  if(aSel && aSel.value) viewAnalista = aSel.value;
   if(!viewAnalista) viewAnalista = ANALISTAS_SP[0];
-  const sel = document.getElementById('analista-select');
-  if(sel){
-    if(!sel.value) sel.value = viewAnalista;
-    else viewAnalista = sel.value;
-  }
+  if(aSel) aSel.value = viewAnalista;
+
+  // 2. Garantir mês
   const now = new Date();
-  selectedMes  = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  selectedWeek = getCurrentWeekIndex(selectedMes);
+  const mesCur = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  if(!selectedMes) selectedMes = mesCur;
   const mSel = document.getElementById('mes-select');
   if(mSel) mSel.value = selectedMes;
+
+  // 3. Semana
+  selectedWeek = getCurrentWeekIndex(selectedMes);
   buildSemanaSelect();
+
+  // 4. Data
   selectedDate = today();
+  selectedItem = null;
+  selectedPct  = null;
+
+  // 5. Carregar e renderizar
   const days = getWeekDays();
+  console.log('[init] analista:', viewAnalista, 'mes:', selectedMes, 'week:', selectedWeek, 'days:', days.length);
   Promise.all(days.map(d => loadLancamentos(d))).then(()=>{
     renderDateStrip();
     renderDemandas();
