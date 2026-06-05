@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="05062026_120047">
+  <meta name="bi-version" content="05062026_121511">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -3623,9 +3623,10 @@ document.querySelectorAll('.nav-item:not(.team-btn):not(.nav-external)').forEach
 
     if(pageEl) pageEl.classList.add('active');
 
-    if(page==='analista') try{renderAnalyst();}catch(e){console.error(e);}
-
-    if(page==='alocacao') try{renderAlocacao();}catch(e){console.error(e);}
+    if(page==='analista')    try{renderAnalyst();}catch(e){console.error(e);}
+    if(page==='alocacao')    try{renderAlocacao();}catch(e){console.error(e);}
+    if(page==='apontamento') try{initApontamento();}catch(e){console.error(e);}
+    if(page==='visualizar')  try{initVisualizar();}catch(e){console.error(e);}
 
   };
 
