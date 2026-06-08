@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="08062026_102915">
+  <meta name="bi-version" content="08062026_145205">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1022,6 +1022,10 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
       <span class="nav-icon">📅</span> Equipe Negócios TI - SP
     </div>
 
+    <div class="nav-item" data-page="cvortex" id="nav-cvortex">
+      <span class="nav-icon">⚙️</span> Recursos cVortex
+    </div>
+
 
 
     <div class="nav-item" data-page="visualizar" id="nav-visualizar" data-locked="true">
@@ -1538,6 +1542,28 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 </div>
 
 
+<!-- PAGE: RECURSOS CVORTEX -->
+<div class="page" id="page-cvortex">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-title">Recursos cVortex · Negócios TI - SP</div>
+      <div class="page-sub" id="cvortex-sub">Visão semanal dos recursos fornecedores</div>
+    </div>
+  </div>
+  <div class="section-label">Alocação de hoje</div>
+  <div class="al-grid" id="cvortex-cards"></div>
+  <div class="section-label" id="cvortex-detail-label">Principais alocações da semana</div>
+  <div class="card" id="cvortex-week">
+    <div class="week-filter-bar" id="cvortex-week-bar" style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border-light)">
+      <span class="week-filter-lbl">Semana</span>
+    </div>
+  </div>
+  <div class="section-label" id="cvortex-today-label">Detalhe de hoje</div>
+  <div class="card" id="cvortex-today"></div>
+</div>
+
+
+
 
 </main>
 
@@ -1802,6 +1828,165 @@ var STATE_SP   = { demands:{}, analysts:[] };
 var STATE_UDIA = { demands:{}, analysts:[] };
 
 var curAlocMes = 'MAIO-26'; // será sobrescrito dentro do try{}
+
+// ── RECURSOS CVORTEX ─────────────────────────────────────────────────────
+const ALOCACAO_CVORTEX = { analistas: [
+  { nome:'Bruna de Oliveira', tipo:'Custo Repassado', atuacao:'Gestão de URA',
+    demands:[
+      {titulo:'[DAYCOVAL] Migração cVortex',tipo:'Projeto',dias:{'2026-06-02':0.85,'2026-06-03':1,'2026-06-05':1,'2026-06-08':1,'2026-06-09':1,'2026-06-10':1,'2026-06-11':1,'2026-06-12':1}},
+      {titulo:'[CREDZ] Migração Credz cVortex',tipo:'Demanda',dias:{}}
+    ]},
+  { nome:'Edson Teodoro Alves', tipo:'Custo Repassado', atuacao:'Gestão de Plataforma',
+    demands:[
+      {titulo:'Validação TT UAT',tipo:'Demanda',dias:{'2026-06-03':0.5,'2026-06-05':1,'2026-06-08':1}},
+      {titulo:'[DIGIO] Migração cVortex',tipo:'Projeto',dias:{'2026-06-02':0.2}}
+    ]},
+  { nome:'João Victor Soares', tipo:'Custo Não Repassado', atuacao:'Migração TT → cVortex',
+    demands:[
+      {titulo:'Digio Intercâmbio',tipo:'Projeto',dias:{'2026-06-02':0.1,'2026-06-03':1,'2026-06-05':1}},
+      {titulo:'Santander Backoffice',tipo:'Projeto',dias:{'2026-06-02':0.1,'2026-06-05':1}},
+      {titulo:'HSBC Backoffice',tipo:'Projeto',dias:{'2026-06-08':1,'2026-06-09':1,'2026-06-10':1,'2026-06-11':1,'2026-06-12':1}}
+    ]},
+  { nome:'Luciano Silva de Moura', tipo:'Custo Repassado', atuacao:'Gestão de Plataforma',
+    demands:[
+      {titulo:'[Bv EGV] Oportunidades pós migração',tipo:'Demanda',dias:{'2026-06-02':1,'2026-06-03':1,'2026-06-05':1,'2026-06-08':0.5}},
+      {titulo:'[CLARO] Migração Disparo',tipo:'Demanda',dias:{'2026-06-08':0.5,'2026-06-09':1,'2026-06-10':1}}
+    ]},
+  { nome:'Nicollas Setta', tipo:'Custo Repassado', atuacao:'Gestão de Plataforma',
+    demands:[
+      {titulo:'NBC Backoffice',tipo:'Projeto',dias:{'2026-06-02':1,'2026-06-03':1,'2026-06-05':1,'2026-06-08':1}},
+      {titulo:'Cybersource',tipo:'Projeto',dias:{'2026-06-09':1,'2026-06-10':1,'2026-06-11':1,'2026-06-12':1,'2026-06-15':1,'2026-06-16':1,'2026-06-17':1}}
+    ]},
+  { nome:'Rian Elias de Moraes', tipo:'Custo Repassado', atuacao:'Gestão de URA',
+    demands:[
+      {titulo:'[DAYCOVAL] Migração cVortex',tipo:'Projeto',dias:{'2026-06-02':1,'2026-06-03':1,'2026-06-05':1,'2026-06-08':1,'2026-06-09':1,'2026-06-10':1,'2026-06-11':1,'2026-06-12':1}},
+      {titulo:'[AV CREDZ] Ajustes fluxos',tipo:'Demanda',dias:{}}
+    ]},
+  { nome:'Wellington C. Martins', tipo:'Custo Repassado', atuacao:'Gestão de Plataforma',
+    demands:[
+      {titulo:'[PMU] Acrescentar filtro disparos',tipo:'Demanda',dias:{'2026-06-08':0.5,'2026-06-09':1,'2026-06-10':1}},
+      {titulo:'[Bv EGV] Planejamento retomada',tipo:'Projeto',dias:{'2026-06-08':0.5}}
+    ]}
+]};
+
+var curCvortexAnalista = null;
+
+function initCvortex(){ curCvortexAnalista=null; renderCvortex(); }
+
+function renderCvortex(){
+  var analistas=ALOCACAO_CVORTEX.analistas;
+  var td=today();
+  var cardsEl=document.getElementById('cvortex-cards');
+  if(cardsEl){
+    cardsEl.innerHTML=analistas.map(function(a,i){
+      var total=a.demands.reduce(function(s,d){return s+(d.dias[td]||0);},0);
+      var tp=Math.round(total*100);
+      var clr=tp>=90?'var(--green-dk)':tp>0?'var(--amber-dk)':'var(--text-3)';
+      var sub=tp>=90?'alocado hoje':tp>0?tp+'% alocado':'sem alocação';
+      var active=curCvortexAnalista===a.nome;
+      return '<div class="al-card'+(active?' active':'')+'" onclick="selectCvortexAnalista('+i+')" style="cursor:pointer">'+
+        '<div class="al-name">'+a.nome+'</div>'+
+        '<div style="font-size:10px;background:#EDE9FE;color:#5B21B6;padding:1px 6px;border-radius:4px;display:inline-flex;margin-bottom:2px;font-weight:600">'+a.tipo+'</div>'+
+        '<div style="font-size:10px;color:var(--text-2);margin-bottom:6px">'+a.atuacao+'</div>'+
+        '<div class="al-pct-val" style="color:'+clr+'">'+(tp>0?tp+'%':'—')+'</div>'+
+        '<div class="al-pct-sub" style="color:'+clr+'">'+sub+'</div>'+
+        '<div class="al-pct-bar"><div class="al-pct-fill" style="width:'+Math.min(100,tp)+'%;background:'+clr+'"></div></div>'+
+      '</div>';
+    }).join('');
+  }
+  if(!curCvortexAnalista&&analistas.length) selectCvortexAnalista(0);
+  else { var i=analistas.findIndex(function(a){return a.nome===curCvortexAnalista;}); if(i>=0) cvortexRenderSemana(i); }
+}
+
+function selectCvortexAnalista(idx){
+  var a=ALOCACAO_CVORTEX.analistas[idx];
+  if(!a) return;
+  curCvortexAnalista=a.nome;
+  document.querySelectorAll('#cvortex-cards .al-card').forEach(function(c,i){c.classList.toggle('active',i===idx);});
+  var lbl=document.getElementById('cvortex-detail-label');
+  if(lbl) lbl.textContent='Principais alocações da semana · '+a.nome;
+  cvortexRenderSemana(idx);
+  cvortexRenderToday(idx, today());
+}
+
+function cvortexRenderSemana(idx){
+  var a=ALOCACAO_CVORTEX.analistas[idx];
+  var weekEl=document.getElementById('cvortex-week');
+  if(!weekEl) return;
+  var td=today();
+  var weeks=getWeeksOfMes('2026-06');
+  var wkBtns='<span class="week-filter-lbl">Semana</span>';
+  weeks.forEach(function(days,i){
+    var isCur=days.includes(td);
+    wkBtns+='<button class="week-btn'+(isCur?' active':'')+'" onclick="cvortexSelectWeek('+idx+','+i+',this)">Semana '+(i+1)+(isCur?' ★':'')+'</button>';
+  });
+  var curWIdx=weeks.findIndex(function(w){return w.includes(td);});
+  if(curWIdx<0) curWIdx=0;
+  weekEl.innerHTML='<div class="week-filter-bar" style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border-light)">'+wkBtns+'</div>'+cvortexWeekGrid(a,weeks[curWIdx]||[],idx,td);
+}
+
+function cvortexWeekGrid(a, weekDays, idx, td){
+  var days=weekDays.filter(function(d){return !isFds(d);});
+  return '<div class="week-grid">'+days.map(function(d){
+    var dt=isoToDate(d);
+    var label=dt.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','/');
+    var isToday=d===td;
+    var fer=isFeriado(d);
+    if(fer) return '<div class="day-card special"><div class="day-header">'+label+'</div><div style="font-size:11px;color:var(--text-2);text-align:center;padding:8px 0;font-style:italic">Sem Expediente<br>Feriado</div></div>';
+    var total=a.demands.reduce(function(s,dem){return s+(dem.dias[d]||0);},0);
+    var tp=Math.round(total*100);
+    var cls=tp>=90?'ok':tp>0?'partial':'';
+    var items=a.demands.filter(function(dem){return (dem.dias[d]||0)>0;}).sort(function(x,y){return (y.dias[d]||0)-(x.dias[d]||0);}).slice(0,4);
+    var onclk='cvortexDayDetail('+idx+',this.dataset.d)';
+    var card='<div class="day-card'+(isToday?' today':'')+'" data-d="'+d+'" onclick="'+onclk+'">';
+    card+='<div class="day-header'+(isToday?' today-hd':'')+'"><span>'+label+'</span>'+(isToday?'<span class="day-today-dot"></span>':'')+'</div>';
+    if(items.length){ items.forEach(function(dem){ card+='<div class="day-item"><span class="day-item-name">'+dem.titulo.split('-').pop().trim().substring(0,24)+'</span><span class="day-item-pct">'+Math.round((dem.dias[d]||0)*100)+'%</span></div>'; }); }
+    else { card+='<div style="font-size:11px;color:var(--text-3);padding:8px 0">Sem alocação</div>'; }
+    if(tp>0) card+='<div class="day-total '+cls+'">'+tp+'% alocado</div>';
+    card+='</div>';
+    return card;
+  }).join('')+'</div>';
+}
+
+function cvortexRenderToday(idx,d){
+  var a=ALOCACAO_CVORTEX.analistas[idx];
+  var lbl=document.getElementById('cvortex-today-label');
+  var el=document.getElementById('cvortex-today');
+  var dt=isoToDate(d).toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
+  if(lbl) lbl.textContent='Detalhe · '+a.nome+' · '+dt;
+  if(!el) return;
+  var items=a.demands.filter(function(dem){return (dem.dias[d]||0)>0;}).sort(function(x,y){return (y.dias[d]||0)-(x.dias[d]||0);});
+  if(!items.length){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-2)">Sem alocação neste dia</div>';return;}
+  var total=items.reduce(function(s,dem){return s+(dem.dias[d]||0);},0);
+  var tp=Math.round(total*100);
+  el.innerHTML='<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border-light)">'+
+    '<span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-2)">Detalhe de hoje · '+a.nome+'</span>'+
+    '<span style="font-weight:700;color:var(--amber-dk)">'+tp+'% OCUPADO</span></div>'+
+    items.map(function(dem){
+      var w=Math.min(100,Math.round((dem.dias[d]||0)*100));
+      var clr=w>=90?'var(--green)':w>=50?'var(--amber)':'var(--blue)';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-light)">'+
+        '<div style="width:80px;height:4px;background:var(--border-light);border-radius:2px;overflow:hidden;flex-shrink:0"><div style="height:100%;width:'+w+'%;background:'+clr+';border-radius:2px"></div></div>'+
+        '<span style="font-size:12px;font-weight:600;color:var(--text-2);min-width:30px;text-align:right">'+w+'%</span>'+
+        '<span style="flex:1;font-size:13px">'+dem.titulo+'</span>'+
+        '<span style="font-size:11px;color:var(--text-2)">'+dem.tipo+'</span>'+
+      '</div>';
+    }).join('');
+}
+
+function cvortexDayDetail(idx,d){ if(d && d.dataset) d=d.dataset.d; cvortexRenderToday(idx,d); }
+
+function cvortexSelectWeek(analIdx,weekIdx,btn){
+  document.querySelectorAll('#cvortex-week .week-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  var a=ALOCACAO_CVORTEX.analistas[analIdx];
+  var weeks=getWeeksOfMes('2026-06');
+  var td=today();
+  var weekEl=document.getElementById('cvortex-week');
+  if(!weekEl) return;
+  var bar=weekEl.querySelector('.week-filter-bar');
+  weekEl.innerHTML=(bar?bar.outerHTML:'')+cvortexWeekGrid(a,weeks[weekIdx]||[],analIdx,td);
+}
 
 try {
 
@@ -3730,6 +3915,7 @@ document.querySelectorAll('.nav-item:not(.team-btn):not(.nav-external)').forEach
     if(page==='analista')    try{renderAnalyst();}catch(e){console.error(e);}
     if(page==='alocacao')    try{renderAlocacao(); syncAlocMesSelect();}catch(e){console.error(e);}
     if(page==='apontamento') try{initApontamento();}catch(e){console.error(e);}
+    if(page==='cvortex')     try{initCvortex();}catch(e){console.error(e);}
     if(page==='visualizar')  try{initVisualizar();}catch(e){console.error(e);}
 
   };
