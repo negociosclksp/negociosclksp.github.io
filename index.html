@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="08062026_145205">
+  <meta name="bi-version" content="08062026_150428">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -471,6 +471,8 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 
 .al-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
 
+#cvortex-cards.al-grid{grid-template-columns:repeat(4,1fr)}
+
 .al-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;cursor:pointer;transition:all .15s}
 
 .al-card:hover{border-color:var(--blue)}
@@ -478,6 +480,8 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .al-card.active{border-color:var(--blue);background:var(--blue-bg)}
 
 .al-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+#cvortex-cards .al-name{white-space:normal;font-size:13px}
 
 .al-pct-val{font-size:24px;font-weight:600;line-height:1;margin-bottom:2px}
 
@@ -1554,9 +1558,7 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
   <div class="al-grid" id="cvortex-cards"></div>
   <div class="section-label" id="cvortex-detail-label">Principais alocações da semana</div>
   <div class="card" id="cvortex-week">
-    <div class="week-filter-bar" id="cvortex-week-bar" style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border-light)">
-      <span class="week-filter-lbl">Semana</span>
-    </div>
+    <div id="cvortex-week-bar" style="margin-bottom:14px"></div>
   </div>
   <div class="section-label" id="cvortex-today-label">Detalhe de hoje</div>
   <div class="card" id="cvortex-today"></div>
@@ -1915,37 +1917,48 @@ function cvortexRenderSemana(idx){
   if(!weekEl) return;
   var td=today();
   var weeks=getWeeksOfMes('2026-06');
-  var wkBtns='<span class="week-filter-lbl">Semana</span>';
+  var wkBtns='';
   weeks.forEach(function(days,i){
     var isCur=days.includes(td);
-    wkBtns+='<button class="week-btn'+(isCur?' active':'')+'" onclick="cvortexSelectWeek('+idx+','+i+',this)">Semana '+(i+1)+(isCur?' ★':'')+'</button>';
+    var st=isCur?'background:var(--blue-bg);color:var(--blue-dk);border-color:var(--blue);font-weight:500':'';
+    wkBtns+='<button class="wfbtn'+(isCur?' active':'')+(isCur?'':'')+'" style="'+st+'" onclick="cvortexSelectWeek('+idx+','+i+',this)">Semana '+(i+1)+(isCur?' ★':'')+'</button>';
   });
   var curWIdx=weeks.findIndex(function(w){return w.includes(td);});
   if(curWIdx<0) curWIdx=0;
-  weekEl.innerHTML='<div class="week-filter-bar" style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border-light)">'+wkBtns+'</div>'+cvortexWeekGrid(a,weeks[curWIdx]||[],idx,td);
+  var wfBar='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap"><span class="week-filter-lbl">SEMANA</span>'+wkBtns+'</div>';
+  weekEl.innerHTML=wfBar+cvortexWeekGrid(a,weeks[curWIdx]||[],idx,td);
 }
 
 function cvortexWeekGrid(a, weekDays, idx, td){
   var days=weekDays.filter(function(d){return !isFds(d);});
-  return '<div class="week-grid">'+days.map(function(d){
+  var html2='<div class="week-grid-al">';
+  days.forEach(function(d){
     var dt=isoToDate(d);
-    var label=dt.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','/');
+    var label=dt.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','/').toUpperCase();
     var isToday=d===td;
     var fer=isFeriado(d);
-    if(fer) return '<div class="day-card special"><div class="day-header">'+label+'</div><div style="font-size:11px;color:var(--text-2);text-align:center;padding:8px 0;font-style:italic">Sem Expediente<br>Feriado</div></div>';
+    var cls='week-day-al'+(isToday?' today':'');
+    var onclk='cvortexDayDetail('+idx+',this.dataset.d)';
+    if(fer){
+      html2+='<div class="'+cls+'" data-d="'+d+'" onclick="'+onclk+'"><div class="week-day-lbl">'+label+'</div><div class="week-special">Sem Expediente<br>Feriado</div></div>';
+      return;
+    }
     var total=a.demands.reduce(function(s,dem){return s+(dem.dias[d]||0);},0);
     var tp=Math.round(total*100);
-    var cls=tp>=90?'ok':tp>0?'partial':'';
+    var totalColor=tp>=90?'var(--green-dk)':tp>=50?'var(--amber-dk)':'var(--red-dk)';
     var items=a.demands.filter(function(dem){return (dem.dias[d]||0)>0;}).sort(function(x,y){return (y.dias[d]||0)-(x.dias[d]||0);}).slice(0,4);
-    var onclk='cvortexDayDetail('+idx+',this.dataset.d)';
-    var card='<div class="day-card'+(isToday?' today':'')+'" data-d="'+d+'" onclick="'+onclk+'">';
-    card+='<div class="day-header'+(isToday?' today-hd':'')+'"><span>'+label+'</span>'+(isToday?'<span class="day-today-dot"></span>':'')+'</div>';
-    if(items.length){ items.forEach(function(dem){ card+='<div class="day-item"><span class="day-item-name">'+dem.titulo.split('-').pop().trim().substring(0,24)+'</span><span class="day-item-pct">'+Math.round((dem.dias[d]||0)*100)+'%</span></div>'; }); }
-    else { card+='<div style="font-size:11px;color:var(--text-3);padding:8px 0">Sem alocação</div>'; }
-    if(tp>0) card+='<div class="day-total '+cls+'">'+tp+'% alocado</div>';
-    card+='</div>';
-    return card;
-  }).join('')+'</div>';
+    var demsHtml='';
+    items.forEach(function(dem){
+      demsHtml+='<div class="week-dem-al"><span>'+dem.titulo.split('-').pop().trim().substring(0,22)+'</span><span class="week-dem-pct">'+Math.round((dem.dias[d]||0)*100)+'%</span></div>';
+    });
+    html2+='<div class="'+cls+'" data-d="'+d+'" onclick="'+onclk+'">'+
+      '<div class="week-day-lbl">'+label+(isToday?' ★':'')+'</div>'+
+      (items.length?demsHtml:'<div class="week-special" style="text-align:left">Sem alocação</div>')+
+      (tp>0?'<div style="font-size:9px;font-weight:600;color:'+totalColor+';margin-top:4px;border-top:0.5px solid var(--border-light);padding-top:3px">'+tp+'% alocado</div>':'')+
+    '</div>';
+  });
+  html2+='</div>';
+  return html2;
 }
 
 function cvortexRenderToday(idx,d){
@@ -1977,15 +1990,18 @@ function cvortexRenderToday(idx,d){
 function cvortexDayDetail(idx,d){ if(d && d.dataset) d=d.dataset.d; cvortexRenderToday(idx,d); }
 
 function cvortexSelectWeek(analIdx,weekIdx,btn){
-  document.querySelectorAll('#cvortex-week .week-btn').forEach(function(b){b.classList.remove('active');});
-  if(btn) btn.classList.add('active');
+  document.querySelectorAll('#cvortex-week .wfbtn').forEach(function(b){b.classList.remove('active');b.style.background='';b.style.color='';b.style.borderColor='';b.style.fontWeight=''});
+  if(btn){btn.classList.add('active');btn.style.background='#4a4a47';btn.style.color='#fff';btn.style.borderColor='#4a4a47';}
   var a=ALOCACAO_CVORTEX.analistas[analIdx];
   var weeks=getWeeksOfMes('2026-06');
   var td=today();
   var weekEl=document.getElementById('cvortex-week');
   if(!weekEl) return;
-  var bar=weekEl.querySelector('.week-filter-bar');
-  weekEl.innerHTML=(bar?bar.outerHTML:'')+cvortexWeekGrid(a,weeks[weekIdx]||[],analIdx,td);
+  var bar=weekEl.querySelector('div');
+  var newGrid=cvortexWeekGrid(a,weeks[weekIdx]||[],analIdx,td);
+  var oldGrid=weekEl.querySelector('.week-grid-al');
+  if(oldGrid) oldGrid.outerHTML=newGrid;
+  else weekEl.innerHTML=(bar?bar.outerHTML:'')+newGrid;
 }
 
 try {
