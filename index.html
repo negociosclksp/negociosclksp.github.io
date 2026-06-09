@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="09062026_090117">
+  <meta name="bi-version" content="09062026_090543">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1832,44 +1832,7 @@ var STATE_UDIA = { demands:{}, analysts:[] };
 var curAlocMes = 'MAIO-26'; // será sobrescrito dentro do try{}
 
 // ── RECURSOS CVORTEX ─────────────────────────────────────────────────────
-const ALOCACAO_CVORTEX = { analistas: [
-  { nome:'Bruna de Oliveira', tipo:'Custo Repassado', atuacao:'Gestão de URA',
-    demands:[
-      {titulo:'[DAYCOVAL] Migração cVortex',tipo:'Projeto',dias:{'2026-06-02':0.85,'2026-06-03':1,'2026-06-05':1,'2026-06-08':1,'2026-06-09':1,'2026-06-10':1,'2026-06-11':1,'2026-06-12':1}},
-      {titulo:'[CREDZ] Migração Credz cVortex',tipo:'Demanda',dias:{}}
-    ]},
-  { nome:'Edson Teodoro Alves', tipo:'Custo Repassado', atuacao:'Gestão de Plataforma',
-    demands:[
-      {titulo:'Validação TT UAT',tipo:'Demanda',dias:{'2026-06-03':0.5,'2026-06-05':1,'2026-06-08':1}},
-      {titulo:'[DIGIO] Migração cVortex',tipo:'Projeto',dias:{'2026-06-02':0.2}}
-    ]},
-  { nome:'João Victor Soares', tipo:'Custo Não Repassado', atuacao:'Migração TT → cVortex',
-    demands:[
-      {titulo:'Digio Intercâmbio',tipo:'Projeto',dias:{'2026-06-02':0.1,'2026-06-03':1,'2026-06-05':1}},
-      {titulo:'Santander Backoffice',tipo:'Projeto',dias:{'2026-06-02':0.1,'2026-06-05':1}},
-      {titulo:'HSBC Backoffice',tipo:'Projeto',dias:{'2026-06-08':1,'2026-06-09':1,'2026-06-10':1,'2026-06-11':1,'2026-06-12':1}}
-    ]},
-  { nome:'Luciano Silva de Moura', tipo:'Custo Repassado', atuacao:'Gestão de Plataforma',
-    demands:[
-      {titulo:'[Bv EGV] Oportunidades pós migração',tipo:'Demanda',dias:{'2026-06-02':1,'2026-06-03':1,'2026-06-05':1,'2026-06-08':0.5}},
-      {titulo:'[CLARO] Migração Disparo',tipo:'Demanda',dias:{'2026-06-08':0.5,'2026-06-09':1,'2026-06-10':1}}
-    ]},
-  { nome:'Nicollas Setta', tipo:'Custo Repassado', atuacao:'Gestão de Plataforma',
-    demands:[
-      {titulo:'NBC Backoffice',tipo:'Projeto',dias:{'2026-06-02':1,'2026-06-03':1,'2026-06-05':1,'2026-06-08':1}},
-      {titulo:'Cybersource',tipo:'Projeto',dias:{'2026-06-09':1,'2026-06-10':1,'2026-06-11':1,'2026-06-12':1,'2026-06-15':1,'2026-06-16':1,'2026-06-17':1}}
-    ]},
-  { nome:'Rian Elias de Moraes', tipo:'Custo Repassado', atuacao:'Gestão de URA',
-    demands:[
-      {titulo:'[DAYCOVAL] Migração cVortex',tipo:'Projeto',dias:{'2026-06-02':1,'2026-06-03':1,'2026-06-05':1,'2026-06-08':1,'2026-06-09':1,'2026-06-10':1,'2026-06-11':1,'2026-06-12':1}},
-      {titulo:'[AV CREDZ] Ajustes fluxos',tipo:'Demanda',dias:{}}
-    ]},
-  { nome:'Wellington C. Martins', tipo:'Custo Repassado', atuacao:'Gestão de Plataforma',
-    demands:[
-      {titulo:'[PMU] Acrescentar filtro disparos',tipo:'Demanda',dias:{'2026-06-08':0.5,'2026-06-09':1,'2026-06-10':1}},
-      {titulo:'[Bv EGV] Planejamento retomada',tipo:'Projeto',dias:{'2026-06-08':0.5}}
-    ]}
-]};
+const ALOCACAO_CVORTEX = { analistas: [{"nome":"Bruna De Oliveira","tipo":"Custo Repassado","atuacao":"Gestão de URA","demands":[{"titulo":"[CALLINK-SP] [DAYCOVAL] - Migração cVortex","tipo":"Projeto","dias":{"2026-06-01":0.85,"2026-06-02":1.0,"2026-06-03":1.0,"2026-06-05":1.0,"2026-06-08":1.0,"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0,"2026-06-15":1.0,"2026-06-16":1.0,"2026-06-17":1.0,"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0,"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0,"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}},{"titulo":"Ajuste em frase inicial [Agente Virtual Credz]","tipo":"Demanda","dias":{"2026-06-01":0.15}}]},{"nome":"Edson Teodoro Alves","tipo":"Custo Repassado","atuacao":"Gestão de Plataforma","demands":[{"titulo":"Validação TT UAT","tipo":"Demanda","dias":{"2026-06-02":0.5,"2026-06-03":1.0}},{"titulo":"[DIGIO] - Migração cVortex","tipo":"Projeto","dias":{"2026-06-01":0.2}},{"titulo":"[CLK MESA RISCO PF] - CLK SP - FINALIZAÇÃO AUTOMÁTICA TEAM TASK","tipo":"Demanda","dias":{"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}},{"titulo":"[FIS] OPERAÇÃO INTERCAMBIO EM UAT","tipo":"Demanda","dias":{"2026-06-02":0.25,"2026-06-05":0.5,"2026-06-08":1.0,"2026-06-09":1.0}},{"titulo":"[FIS] NOVA OPERAÇÃO NÃO MONETARIO","tipo":"Demanda","dias":{"2026-06-02":0.25,"2026-06-05":0.5,"2026-06-10":1.0,"2026-06-11":1.0}},{"titulo":"[FIS] STO_00286532 - BRADESCO - HIBRIDOS - CANAL DE EXCEÇÃO - SAMUEL","tipo":"Demanda","dias":{"2026-06-01":0.3}},{"titulo":"[FIS]CLK SP - STO_00287105 - MELHORIA APÓS SEGREGAÇÃO - CAROL","tipo":"Demanda","dias":{"2026-06-01":0.5}},{"titulo":"[FIS] CLK SP -STO_00286536 - NOVA TABULAÇAÕ NO TEAM TASK - CAROL","tipo":"Demanda","dias":{"2026-06-12":0.5,"2026-06-15":0.5,"2026-06-16":0.5}},{"titulo":"[FIS] CLK SP - Ajuste Layout Mailing Enriquecimento PJ - CAROL","tipo":"Demanda","dias":{"2026-06-12":0.5,"2026-06-15":0.5,"2026-06-16":0.5}},{"titulo":"[FIS] STO_00281507 - BRADESCO - DEMAIS OPERAÇÕES - MESA DE RISCO - BRUNNO","tipo":"Demanda","dias":{"2026-06-17":1.0}},{"titulo":"[FIS] CLK SP - MAPEAMENTO CAIXA DEPARTAMENTAL BACKOFFICE EAVM - INTERCAMBIO - BRUNO","tipo":"Demanda","dias":{"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0}},{"titulo":"[FIS] Ajuste CAD - Documentação - CAROL","tipo":"Demanda","dias":{"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0}}]},{"nome":"João Victor Soares Da Silva","tipo":"Custo Não Repassado","atuacao":"Migração TT → cVortex","demands":[{"titulo":"Digio Intercâmbio","tipo":"Projeto","dias":{"2026-06-01":0.1,"2026-06-02":1.0,"2026-06-03":0.7}},{"titulo":"Santander Backoffice","tipo":"Projeto","dias":{"2026-06-01":0.1,"2026-06-03":0.3,"2026-06-05":1.0}},{"titulo":"HSBC Backoffice","tipo":"Projeto","dias":{"2026-06-08":1.0,"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0,"2026-06-15":0.5}},{"titulo":"Bradesco ON - Apoio Estratégico","tipo":"Projeto","dias":{"2026-06-01":0.4,"2026-06-15":0.5,"2026-06-16":1.0,"2026-06-17":1.0,"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0,"2026-06-23":0.5}},{"titulo":"Bradesco ON - UCB","tipo":"Projeto","dias":{"2026-06-23":0.5,"2026-06-24":1.0,"2026-06-25":1.0,"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}}]},{"nome":"Luciano Silva De Moura","tipo":"Custo Repassado","atuacao":"Gestão de URA","demands":[{"titulo":"[CLARO PROSPECT] - Migração Disparo e-commerce - Plataforma cVortex","tipo":"Demanda","dias":{"2026-06-08":0.5,"2026-06-09":1.0,"2026-06-10":1.0}},{"titulo":"[PMU] - Inclusão de e-mail no pmu_automation@mailsys.cvortex.com","tipo":"Demanda","dias":{"2026-06-16":1.0,"2026-06-17":1.0}},{"titulo":"[PMU] - Inclusão de email para recebimento de report de importação - PMU","tipo":"Projeto","dias":{"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0}},{"titulo":"Ticket#18794117 — ㅤCampo DESCRICAO_CASO vindo com falha no texto","tipo":"Demanda","dias":{"2026-06-11":0.3}},{"titulo":"[PMU] - Cadastro de feriados no Cvortex para que não dispare HSM nestes dias sem operadores para atender","tipo":"Demanda","dias":{"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0}},{"titulo":"[Bv EGV] - Oportunidades sistêmicas pós migração","tipo":"Demanda","dias":{"2026-06-01":1.0,"2026-06-02":1.0,"2026-06-03":1.0,"2026-06-05":1.0,"2026-06-08":0.5}},{"titulo":"[Bradesco Transacional] - Criação de fila Site Bradescard","tipo":"Incidente","dias":{"2026-06-11":0.7,"2026-06-12":1.0,"2026-06-15":1.0}}]},{"nome":"Nicollas Setta De Medeiros","tipo":"Custo Repassado","atuacao":"Gestão de Plataforma","demands":[{"titulo":"NBC Backoffice","tipo":"Projeto","dias":{"2026-06-01":1.0,"2026-06-02":1.0,"2026-06-03":1.0,"2026-06-05":1.0,"2026-06-08":1.0}},{"titulo":"Cybersource","tipo":"Projeto","dias":{"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0,"2026-06-15":1.0,"2026-06-16":1.0,"2026-06-17":1.0,"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0,"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0,"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}}]},{"nome":"Rian Elias De Moraes","tipo":"Custo Repassado","atuacao":"Gestão de URA","demands":[{"titulo":"[CALLINK-SP] [DAYCOVAL] - Migração cVortex","tipo":"Projeto","dias":{"2026-06-01":1.0,"2026-06-02":1.0,"2026-06-03":1.0,"2026-06-05":1.0,"2026-06-08":1.0,"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0,"2026-06-15":1.0,"2026-06-16":1.0,"2026-06-17":1.0,"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0,"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}}]},{"nome":"Wellington Costa Martins","tipo":"Custo Repassado","atuacao":"Gestão de Plataforma","demands":[{"titulo":"[Bv Intercâmbio] - Agendamento dos follows","tipo":"Demanda","dias":{"2026-06-08":0.5}},{"titulo":"[Bradesco Transacional] - Tornar obrigatório o preenchimento da ação 'Atualiza Rejeição' na fila MAIL","tipo":"Demanda","dias":{"2026-06-08":0.5,"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0}},{"titulo":"[Bv EGV] - Oportunidades sistêmicas pós migração","tipo":"Demanda","dias":{"2026-06-01":1.0}}]}]};
 
 var curCvortexAnalista = null;
 
