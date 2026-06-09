@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="09062026_112138">
+  <meta name="bi-version" content="09062026_151805">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -128,6 +128,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .exec-filter-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-right:4px}
 
 .exec-fbtn{font-size:12px;padding:6px 16px;border-radius:20px;border:1px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text-2);transition:all .15s}
+
+.vfbtn{font-size:12px;padding:6px 16px;border-radius:20px;border:1px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text-2);transition:all .15s}
+.vfbtn.active{background:#4a4a47;color:#fff;border-color:#4a4a47;font-weight:500}
+.vfbtn:hover{border-color:var(--text-3);color:var(--text)}
 
 .exec-fbtn:hover{border-color:var(--text-3);color:var(--text)}
 
@@ -1022,26 +1026,6 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 
   <nav class="sidebar-nav">
 
-    <div class="nav-section">Selecionar a Visão</div>
-
-    <div class="nav-item team-btn active" data-team="area" onclick="setTeam('area')">
-
-      <span class="nav-icon">🌐</span> Visão Geral
-
-    </div>
-
-    <div class="nav-item team-btn" data-team="sp" onclick="setTeam('sp')">
-
-      <span class="nav-icon">📍</span> Negócios TI - SP
-
-    </div>
-
-    <div class="nav-item team-btn" data-team="udia" onclick="setTeam('udia')">
-
-      <span class="nav-icon">📍</span> Negócios TI - UDIA
-
-    </div>
-
     <div class="nav-section">Painéis</div>
 
     <div class="nav-item active" data-page="executivo">
@@ -1128,18 +1112,18 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
       <div class="page-title">Executivo <span class="live-badge"><span class="live-dot"></span>ao vivo</span></div>
 
       <div class="page-sub" id="exec-sub">Visão geral das demandas do time · Negócios SP</div>
-
-    </div>
-
-    <div class="exec-filter-bar">
-
-      <span class="exec-filter-label">Visão</span>
-
-      <button class="exec-fbtn active" onclick="setExecFilter('tudo')">Tudo</button>
-
-      <button class="exec-fbtn" onclick="setExecFilter('demandas')">Demandas</button>
-
-      <button class="exec-fbtn" onclick="setExecFilter('projetos')">Projetos</button>
+      <div id="exec-team-pills" style="display:flex;align-items:center;gap:6px;margin-top:10px">
+        <span class="exec-filter-label">Visão</span>
+        <button class="vfbtn active" data-team="area" onclick="setTeam('area')">Visão Geral</button>
+        <button class="vfbtn"        data-team="sp"   onclick="setTeam('sp')">Negócios TI - SP</button>
+        <button class="vfbtn"        data-team="udia" onclick="setTeam('udia')">Negócios TI - UDIA</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px">
+        <span class="exec-filter-label">Tipo</span>
+        <button class="exec-fbtn" onclick="setExecFilter('demandas')">Demandas</button>
+        <button class="exec-fbtn" onclick="setExecFilter('projetos')">Projetos</button>
+        <button class="exec-fbtn active" onclick="setExecFilter('tudo')">Tudo</button>
+      </div>
 
     </div>
 
@@ -1272,15 +1256,18 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 <div class="page" id="page-analista">
 
   <div class="page-header">
-
     <div class="page-header-left">
-
       <div class="page-title">Gestão por Analista</div>
-
       <div class="page-sub">Selecione um analista para ver todas as demandas em aberto</div>
-
     </div>
-
+    <div class="page-header-right">
+      <div id="analista-team-pills" style="display:flex;align-items:center;gap:6px">
+        <span class="exec-filter-label">Visão</span>
+        <button class="vfbtn active" data-team="area" onclick="setTeam('area')">Visão Geral</button>
+        <button class="vfbtn"        data-team="sp"   onclick="setTeam('sp')">Negócios TI - SP</button>
+        <button class="vfbtn"        data-team="udia" onclick="setTeam('udia')">Negócios TI - UDIA</button>
+      </div>
+    </div>
   </div>
 
   <div class="analyst-btns" id="analyst-btns"></div>
@@ -2825,14 +2812,16 @@ function mergeStates(sp, ud) {
 
 function setTeam(team) {
 
-  activeTeam = team;
+  activeTeam = team === 'all' ? 'area' : team;
 
-  // Atualiza itens de visão
-
+  // Atualiza team-btn na sidebar (se existir)
   document.querySelectorAll('.team-btn').forEach(btn => {
-
     btn.classList.toggle('active', btn.dataset.team === team);
+  });
 
+  // Atualiza pills nos painéis
+  document.querySelectorAll('.vfbtn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.team === team);
   });
 
   // Atualiza subtítulo sidebar
