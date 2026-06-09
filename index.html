@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="09062026_105929">
+  <meta name="bi-version" content="09062026_110302">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -966,10 +966,10 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .cap-scenario-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
 .cap-scenario-title{font-size:13px;font-weight:700;margin-bottom:4px}
 .cap-scenario-sub{font-size:11px;color:var(--text-2);margin-bottom:16px}
-.cap-metric-row{display:flex;justify-content:space-between;align-items:center;height:40px;border-bottom:1px solid var(--border-light);overflow:hidden}
+.cap-metric-row{display:grid;grid-template-columns:1fr auto;align-items:center;height:40px;border-bottom:1px solid var(--border-light);overflow:hidden;gap:8px}
 .cap-metric-row:last-child{border-bottom:none}
-.cap-metric-lbl{font-size:12px;color:var(--text-2);flex:1;padding-right:8px}
-.cap-metric-val{font-size:13px;font-weight:700;white-space:nowrap;line-height:1;flex-shrink:0}
+.cap-metric-lbl{font-size:12px;color:var(--text-2)}
+.cap-metric-val{font-size:13px;font-weight:700;white-space:nowrap;text-align:right}
 .cap-metric-val.ok{color:var(--green-dk);font-size:13px}
 .cap-metric-val.warn{color:var(--amber-dk);font-size:13px}
 .cap-metric-val.alert{color:var(--red-dk);font-size:13px}
