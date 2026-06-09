@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="09062026_094603">
+  <meta name="bi-version" content="09062026_095417">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -954,8 +954,8 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 
 
 /* ── CAPACITY PAGE ──────────────────────────────────────────────────────── */
-.cap-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.cap-hero-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;position:relative;overflow:hidden}
+.cap-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;align-items:stretch}
+.cap-hero-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;height:100%}
 .cap-hero-card.ok{border-left:4px solid var(--green)}
 .cap-hero-card.warn{border-left:4px solid var(--amber)}
 .cap-hero-card.alert{border-left:4px solid var(--red-dk)}
@@ -1640,6 +1640,10 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
   <!-- Recomendação -->
   <div id="cap-recommend"></div>
 
+  <!-- Como calculamos -->
+  <div class="section-label">Como calculamos</div>
+  <div class="card" id="cap-formula" style="padding:20px;margin-bottom:16px"></div>
+
   <!-- Tabela histórico velocidade -->
   <div class="section-label">Histórico de velocidade (entregas/mês)</div>
   <div class="card" id="cap-history" style="padding:20px"></div>
@@ -2047,114 +2051,126 @@ function cvortexSelectWeek(analIdx,weekIdx,btn){
 }
 
 // ── CAPACITY ──────────────────────────────────────────────────────────────
-const CAP_META_ABS  = 0.80;   // meta absorção 80%
-const CAP_MAX_DEM   = 5;      // max demandas simultâneas por analista
-const CAP_DIAS_MES  = 22;     // dias úteis médios por mês
+const CAP_META_ABS  = 0.80;
+const CAP_MAX_DEM   = 5;
 const CAP_ANALISTAS = ['Bruno Saraiva','Camila Moraes','Carolina Andrade','Matheus Lopes','Samuel Pinto'];
 
 function initCapacity(){
   var s = STATE_SP;
   if(!s || !s.kpis) return;
 
-  // ── Dados base ──────────────────────────────────────────────────────
-  var estoque      = s.kpis.estoque   || 0;
-  var emAtuacao    = s.kpis.emAtuacao || 0;
-  var backlog      = s.kpis.backlog   || 0;
-  var absHist      = s.kpis.absHistorico || 0;  // % ex: 78
-  var abs2026      = s.kpis.absAno       || 0;  // % ex: 81
-  var abertas2026  = s.kpis.abertas2026  || 0;
-  var enc2026      = s.kpis.encerradas2026 || 0;
-  var nAnalistas   = CAP_ANALISTAS.length;  // 5
+  // ── Dados base ─────────────────────────────────────────────────────
+  var estoque     = s.kpis.estoque   || 0;
+  var emAtuacao   = s.kpis.emAtuacao || 0;
+  var absHist     = Math.round((s.kpis.absHistorico || 0) * 100) / 100;  // decimal ex: 0.78
+  var abs2026     = Math.round((s.kpis.absAno || 0) * 100) / 100;
+  var abertas2026 = s.kpis.abertas2026  || 0;
+  var enc2026     = s.kpis.encerradas2026 || 0;
+  var nAnalistas  = CAP_ANALISTAS.length;
 
-  // Velocidade: média de fechamentos por mês (2026)
-  var mesesDecorridos = (function(){
-    var now = new Date(); return now.getMonth() + 1; // jan=1
-  })();
-  var velMes = mesesDecorridos > 0 ? Math.round(enc2026 / mesesDecorridos) : 0;
-  var velAnalistaMes = nAnalistas > 0 ? (velMes / nAnalistas).toFixed(1) : 0;
+  // Normalizar absorção: se vier como 78 (percentual) converter para 0.78
+  if(absHist > 1)  absHist  = absHist  / 100;
+  if(abs2026 > 1)  abs2026  = abs2026  / 100;
 
-  // Demandas por analista hoje
+  // Velocidade 2026 (ano atual)
+  var now = new Date();
+  var mesesDecorridos = now.getMonth() + 1;
+  var vel2026 = mesesDecorridos > 0 ? Math.round(enc2026 / mesesDecorridos) : 0;
+  var velPA2026 = nAnalistas > 0 ? (vel2026 / nAnalistas).toFixed(1) : 0;
+
+  // Velocidade histórica — via prodMonthly completo
+  var prodAll = (s.prodMonthly && s.prodMonthly.equipe) ? s.prodMonthly.equipe : [];
+  var velHist = prodAll.length > 0
+    ? Math.round(prodAll.reduce(function(a,m){return a+(m.enc||0);},0) / prodAll.length)
+    : vel2026;
+  var velPAHist = nAnalistas > 0 ? (velHist / nAnalistas).toFixed(1) : 0;
+
+  // Demandas EM ABERTO por analista (excluindo Backlog e Encerrada/Concluída)
   var demandasPorAnalista = {};
   CAP_ANALISTAS.forEach(function(nome){
-    var d = (s.demands || {})[nome] || [];
-    demandasPorAnalista[nome] = d.length;
+    var lista = (s.demands || {})[nome] || [];
+    var abertas = lista.filter(function(d){
+      var st = (d.status||'').toLowerCase();
+      return st !== 'backlog' && st !== 'encerrada' && st !== 'concluída' && st !== 'concluida';
+    });
+    demandasPorAnalista[nome] = abertas.length;
   });
   var totalDemAtuais = Object.values(demandasPorAnalista).reduce(function(a,b){return a+b;},0);
   var mediaDemAnalista = nAnalistas > 0 ? (totalDemAtuais / nAnalistas).toFixed(1) : 0;
 
-  // Capacidade atual (demandas que consegue processar por mês com 5 analistas)
-  var capAtual = nAnalistas * velAnalistaMes;
-
-  // Ocupação: demandas em atuação / (analistas * max_paralelo)
   var maxCapacidade = nAnalistas * CAP_MAX_DEM;
   var ocupacaoPct = maxCapacidade > 0 ? Math.min(100, Math.round(emAtuacao / maxCapacidade * 100)) : 0;
-
-  // Status geral
-  var statusGeral = ocupacaoPct >= 90 ? 'alert' : ocupacaoPct >= 75 ? 'warn' : 'ok';
-  var statusLabel = ocupacaoPct >= 90 ? 'Sobrecarregado' : ocupacaoPct >= 75 ? 'Atenção' : 'Saudável';
+  var mesesParaZerar = vel2026 > 0 ? (estoque / vel2026).toFixed(1) : '∞';
 
   // ── Hero KPIs ──────────────────────────────────────────────────────
   var hero = document.getElementById('cap-hero');
   if(!hero) return;
 
-  var absAtual = abs2026 > 0 ? abs2026 : absHist;
-  var absStatus = absAtual >= 80 ? 'ok' : absAtual >= 65 ? 'warn' : 'alert';
-
+  var absDisplay2026  = Math.round(abs2026 * 100);
+  var absDisplayHist  = Math.round(absHist * 100);
+  var absStatus  = absDisplay2026 >= 80 ? 'ok' : absDisplay2026 >= 65 ? 'warn' : 'alert';
   var ocupStatus = ocupacaoPct >= 90 ? 'alert' : ocupacaoPct >= 75 ? 'warn' : 'ok';
-  var velStatus  = velMes >= Math.round(capAtual * CAP_META_ABS) ? 'ok' : 'warn';
+  var velStatus  = vel2026 >= Math.round(vel2026 * CAP_META_ABS) ? 'ok' : 'warn';
+  var zerStatus  = parseFloat(mesesParaZerar) <= 3 ? 'ok' : parseFloat(mesesParaZerar) <= 6 ? 'warn' : 'alert';
 
-  // Analistas ideais: estoque / (max_dem * absorção_ideal * meses_clearing)
-  var mesesParaZerar = velMes > 0 ? (estoque / velMes).toFixed(1) : '∞';
-
-  hero.innerHTML = [
-    {label:'Absorção atual (2026)', val: absAtual+'%', sub:'Meta: 80% | Histórico: '+absHist+'%', cls: absStatus},
-    {label:'Ocupação da equipe', val: ocupacaoPct+'%', sub: emAtuacao+' em atuação / '+maxCapacidade+' cap. máx.', cls: ocupStatus},
-    {label:'Velocidade média', val: velMes+'/mês', sub: velAnalistaMes+' fechamentos/analista/mês', cls: velStatus},
-    {label:'Tempo p/ zerar estoque', val: mesesParaZerar+' meses', sub: 'Estoque: '+estoque+' | Vel: '+velMes+'/mês', cls: parseFloat(mesesParaZerar) <= 3 ? 'ok' : parseFloat(mesesParaZerar) <= 6 ? 'warn' : 'alert'},
-  ].map(function(c){
-    return '<div class="cap-hero-card '+c.cls+'">' +
-      '<div class="cap-hero-label">'+c.label+'</div>' +
-      '<div class="cap-hero-val" style="color:var(--'+(c.cls==='ok'?'green-dk':c.cls==='warn'?'amber-dk':'red-dk')+')">'+c.val+'</div>' +
-      '<div class="cap-hero-sub">'+c.sub+'</div>' +
+  function heroCard(label, val, sub, cls){
+    var clr = cls==='ok'?'var(--green-dk)':cls==='warn'?'var(--amber-dk)':'var(--red-dk)';
+    return '<div class="cap-hero-card '+cls+'" style="display:flex;flex-direction:column;justify-content:space-between;min-height:110px">' +
+      '<div class="cap-hero-label">'+label+'</div>' +
+      '<div class="cap-hero-val" style="color:'+clr+'">'+val+'</div>' +
+      '<div class="cap-hero-sub">'+sub+'</div>' +
     '</div>';
-  }).join('');
+  }
 
-  // ── Carga por analista ──────────────────────────────────────────────
+  hero.innerHTML =
+    heroCard('Absorção atual (2026)', absDisplay2026+'%',
+      'Meta: 80% &nbsp;|&nbsp; Histórico geral: '+absDisplayHist+'%', absStatus) +
+    heroCard('Ocupação da equipe', ocupacaoPct+'%',
+      emAtuacao+' em atuação / '+maxCapacidade+' cap. máx. ('+nAnalistas+'×'+CAP_MAX_DEM+')', ocupStatus) +
+    heroCard('Velocidade 2026', vel2026+'/mês',
+      velPA2026+' fechamentos/analista &nbsp;|&nbsp; Histórico: '+velHist+'/mês', velStatus) +
+    heroCard('Tempo p/ zerar estoque', mesesParaZerar+' meses',
+      'Estoque: '+estoque+' &nbsp;|&nbsp; Vel: '+vel2026+'/mês', zerStatus);
+
+  // ── Carga por analista (só abertos) ────────────────────────────────
   var grid = document.getElementById('cap-analyst-grid');
   if(grid){
     grid.innerHTML = CAP_ANALISTAS.map(function(nome){
       var dem = demandasPorAnalista[nome] || 0;
       var pct = Math.round(dem / CAP_MAX_DEM * 100);
       var cls = pct >= 100 ? 'alert' : pct >= 80 ? 'warn' : 'ok';
-      var barClr = cls === 'ok' ? 'var(--green)' : cls === 'warn' ? 'var(--amber)' : 'var(--red-dk)';
+      var barClr = cls==='ok'?'var(--green)':cls==='warn'?'var(--amber)':'var(--red-dk)';
       var tag = pct >= 100 ? 'Sobrecarga' : pct >= 80 ? 'Atenção' : 'OK';
       var primeiroNome = nome.split(' ')[0];
-      return '<div class="cap-analyst-card">' +
+      return '<div class="cap-analyst-card" style="display:flex;flex-direction:column;justify-content:space-between;min-height:120px">' +
         '<div class="cap-analyst-name" title="'+nome+'">'+primeiroNome+'</div>' +
-        '<div class="cap-bar-label"><span>'+dem+' demandas</span><span>'+pct+'%</span></div>' +
-        '<div class="cap-bar-wrap"><div class="cap-bar-fill" style="width:'+Math.min(100,pct)+'%;background:'+barClr+'"></div></div>' +
-        '<div style="font-size:10px;color:var(--text-2);margin-bottom:6px">cap. max: '+CAP_MAX_DEM+' simultâneas</div>' +
+        '<div>' +
+          '<div class="cap-bar-label"><span>'+dem+' em aberto</span><span>'+pct+'%</span></div>' +
+          '<div class="cap-bar-wrap"><div class="cap-bar-fill" style="width:'+Math.min(100,pct)+'%;background:'+barClr+'"></div></div>' +
+          '<div style="font-size:10px;color:var(--text-2);margin-top:3px">máx: '+CAP_MAX_DEM+' simultâneas</div>' +
+        '</div>' +
         '<span class="cap-tag '+cls+'">'+tag+'</span>' +
       '</div>';
     }).join('');
   }
 
-  // ── Cenários ──────────────────────────────────────────────────────
+  // ── Cenários ───────────────────────────────────────────────────────
+  // Cenário 1: baseado no ano atual (2026)
+  var entradaMes2026 = mesesDecorridos > 0 ? Math.round(abertas2026 / mesesDecorridos) : 0;
+  var velNec2026 = entradaMes2026 + Math.round(estoque / 6);
+  var analNec2026 = parseFloat(velPA2026) > 0 ? Math.ceil(velNec2026 / parseFloat(velPA2026)) : nAnalistas;
+  var dif2026 = analNec2026 - nAnalistas;
+
+  // Cenário 2: baseado no histórico geral
+  var velNecHist = Math.round(velHist * CAP_META_ABS / nAnalistas * nAnalistas); // produção necessária
+  var analNecHist = parseFloat(velPAHist) > 0 ? Math.ceil(
+    (entradaMes2026 + Math.round(estoque / 6)) / parseFloat(velPAHist)
+  ) : nAnalistas;
+  var difHist = analNecHist - nAnalistas;
+
   var scen = document.getElementById('cap-scenario');
   if(scen){
-    // Cenário 1: Sem novas entradas (só zerar estoque)
-    var analNecess1 = velMes > 0 ? Math.ceil(estoque / (velAnalistaMes * 6)) : nAnalistas; // 6 meses ideal
-    var analNecess1b = Math.ceil(estoque / (CAP_MAX_DEM * CAP_META_ABS * 6 * CAP_DIAS_MES / 22));
-    var difCen1 = analNecess1 - nAnalistas;
-
-    // Cenário 2: Com entrada histórica de novas demandas (manter estoque estável)
-    var entradaMes = mesesDecorridos > 0 ? Math.round(abertas2026 / mesesDecorridos) : 0;
-    // Para absorver entradas + reduzir estoque, precisa de velNec > entrada
-    var velNecessaria = entradaMes + Math.round(estoque / 6); // zerar em 6 meses
-    var analNecessarios2 = velAnalistaMes > 0 ? Math.ceil(velNecessaria / parseFloat(velAnalistaMes)) : nAnalistas;
-    var difCen2 = analNecessarios2 - nAnalistas;
-
-    function cenCard(titulo, sub, rows, recTag){
+    function cenCard(titulo, sub, rows, tag){
       return '<div class="cap-scenario-card">' +
         '<div class="cap-scenario-title">'+titulo+'</div>' +
         '<div class="cap-scenario-sub">'+sub+'</div>' +
@@ -2164,94 +2180,126 @@ function initCapacity(){
             '<span class="cap-metric-val '+r.cls+'">'+r.val+'</span>' +
           '</div>';
         }).join('') +
-        '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)">' +
-        recTag + '</div>' +
+        '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)">'+tag+'</div>' +
       '</div>';
     }
 
     scen.innerHTML =
-      cenCard(
-        '📦 Cenário 1 — Sem novas entradas',
-        'Considerando apenas o estoque atual de '+estoque+' demandas para zerar em 6 meses',
+      cenCard('📅 Cenário 1 — Histórico 2026 (ano atual)',
+        'Baseado na velocidade de '+vel2026+'/mês ('+mesesDecorridos+' meses) e entrada de ~'+entradaMes2026+' demandas/mês',
         [
-          {lbl:'Analistas atuais', val: nAnalistas, cls:''},
-          {lbl:'Analistas necessários', val: analNecess1, cls: analNecess1 > nAnalistas ? 'alert' : analNecess1 < nAnalistas ? 'ok' : 'ok'},
-          {lbl:'Diferença', val: (difCen1 >= 0 ? '+' : '')+difCen1+' analistas', cls: difCen1 > 0 ? 'alert' : difCen1 < 0 ? 'ok' : 'ok'},
-          {lbl:'Velocidade necessária', val: Math.round(estoque/6)+'/mês', cls:''},
-          {lbl:'Velocidade atual', val: velMes+'/mês', cls: velMes >= Math.round(estoque/6) ? 'ok' : 'warn'},
+          {lbl:'Analistas atuais',          val: nAnalistas,                   cls:''},
+          {lbl:'Analistas necessários',     val: analNec2026,                  cls: dif2026>0?'alert':dif2026<0?'ok':'ok'},
+          {lbl:'Diferença',                 val: (dif2026>=0?'+':'')+dif2026+' analistas', cls: dif2026>0?'alert':dif2026<0?'ok':'ok'},
+          {lbl:'Vel. atual (2026)',          val: vel2026+'/mês',               cls:''},
+          {lbl:'Vel. necessária',           val: velNec2026+'/mês',            cls: vel2026>=velNec2026?'ok':'warn'},
+          {lbl:'Absorção 2026',             val: Math.round(abs2026*100)+'%',  cls: Math.round(abs2026*100)>=80?'ok':'warn'},
         ],
-        difCen1 > 0
-          ? '<span class="cap-tag alert">Precisa de +'+difCen1+' analista(s)</span>'
-          : difCen1 < 0
-            ? '<span class="cap-tag ok">Equipe '+Math.abs(difCen1)+' acima do necessário</span>'
-            : '<span class="cap-tag ok">Equipe dimensionada corretamente</span>'
+        dif2026>0 ? '<span class="cap-tag alert">Precisa de +'+dif2026+' analista(s)</span>'
+          : dif2026<0 ? '<span class="cap-tag ok">Equipe '+Math.abs(dif2026)+' acima do necessário</span>'
+          : '<span class="cap-tag ok">Equipe dimensionada corretamente</span>'
       ) +
-      cenCard(
-        '📈 Cenário 2 — Com entrada histórica de demandas',
-        'Considerando média de ~'+entradaMes+' novas demandas/mês + zerar estoque em 6 meses',
+      cenCard('📊 Cenário 2 — Histórico geral',
+        'Baseado na velocidade histórica de '+velHist+'/mês ('+prodAll.length+' meses de dados)',
         [
-          {lbl:'Analistas atuais', val: nAnalistas, cls:''},
-          {lbl:'Analistas necessários', val: analNecessarios2, cls: analNecessarios2 > nAnalistas ? 'alert' : 'ok'},
-          {lbl:'Diferença', val: (difCen2 >= 0 ? '+' : '')+difCen2+' analistas', cls: difCen2 > 0 ? 'alert' : difCen2 < 0 ? 'ok' : 'ok'},
-          {lbl:'Entrada média/mês', val: entradaMes+'/mês', cls:''},
-          {lbl:'Velocidade necessária', val: velNecessaria+'/mês', cls: velMes >= velNecessaria ? 'ok' : 'warn'},
+          {lbl:'Analistas atuais',          val: nAnalistas,                   cls:''},
+          {lbl:'Analistas necessários',     val: analNecHist,                  cls: difHist>0?'alert':difHist<0?'ok':'ok'},
+          {lbl:'Diferença',                 val: (difHist>=0?'+':'')+difHist+' analistas', cls: difHist>0?'alert':difHist<0?'ok':'ok'},
+          {lbl:'Vel. histórica',            val: velHist+'/mês',               cls:''},
+          {lbl:'Vel. necessária',           val: (entradaMes2026+Math.round(estoque/6))+'/mês', cls: velHist>=(entradaMes2026+Math.round(estoque/6))?'ok':'warn'},
+          {lbl:'Absorção histórica',        val: Math.round(absHist*100)+'%',  cls: Math.round(absHist*100)>=80?'ok':'warn'},
         ],
-        difCen2 > 0
-          ? '<span class="cap-tag alert">Precisa de +'+difCen2+' analista(s)</span>'
-          : difCen2 < 0
-            ? '<span class="cap-tag ok">Equipe '+Math.abs(difCen2)+' acima do necessário</span>'
-            : '<span class="cap-tag ok">Equipe dimensionada corretamente</span>'
+        difHist>0 ? '<span class="cap-tag alert">Precisa de +'+difHist+' analista(s)</span>'
+          : difHist<0 ? '<span class="cap-tag ok">Equipe '+Math.abs(difHist)+' acima do necessário</span>'
+          : '<span class="cap-tag ok">Equipe dimensionada corretamente</span>'
       );
   }
 
-  // ── Recomendação ──────────────────────────────────────────────────
+  // ── Recomendações (baseadas nos dois cenários) ──────────────────────
   var rec = document.getElementById('cap-recommend');
   if(rec){
     var recItems = [];
-    if(absAtual < 80) recItems.push('Absorção abaixo da meta ('+absAtual+'% vs 80%). Verificar gargalos no processo de fechamento.');
-    if(ocupacaoPct >= 90) recItems.push('Equipe com ocupação crítica ('+ocupacaoPct+'%). Risco de atraso nas entregas e queda de qualidade.');
-    if(parseFloat(mesesParaZerar) > 6) recItems.push('Estoque alto: projeção de '+mesesParaZerar+' meses para zerar. Considere reforço temporário ou repriorização.');
-    if(difCen2 > 0) recItems.push('Com entrada histórica, equipe precisa de +'+difCen2+' analista(s) para manter absorção em 80%.');
-    if(mediaDemAnalista > CAP_MAX_DEM) recItems.push('Média de '+mediaDemAnalista+' demandas/analista acima do ideal ('+CAP_MAX_DEM+'). Redistribuir carga.');
-    if(!recItems.length) recItems.push('Equipe bem dimensionada para o momento. Acompanhe os indicadores mensalmente.');
-
+    var absAtualPct = Math.round(abs2026 * 100);
+    if(absAtualPct < 80)
+      recItems.push('Absorção 2026 abaixo da meta ('+absAtualPct+'% vs 80%). Verifique gargalos no fechamento de demandas.');
+    if(ocupacaoPct >= 90)
+      recItems.push('Equipe com ocupação crítica ('+ocupacaoPct+'%). Risco real de atraso nas entregas.');
+    if(parseFloat(mesesParaZerar) > 6)
+      recItems.push('Estoque projetado para '+mesesParaZerar+' meses. Considere reforço temporário ou repriorização.');
+    if(dif2026 > 0)
+      recItems.push('Pelo ritmo de 2026, a equipe precisa de +'+dif2026+' analista(s) para manter absorção em 80%.');
+    if(difHist > 0 && difHist !== dif2026)
+      recItems.push('Pelo histórico geral, seriam necessários +'+difHist+' analista(s) adicionais.');
+    if(parseFloat(mediaDemAnalista) > CAP_MAX_DEM)
+      recItems.push('Média de '+mediaDemAnalista+' demandas ativas/analista acima do ideal ('+CAP_MAX_DEM+'). Redistribuir carga.');
+    if(!recItems.length)
+      recItems.push('Equipe bem dimensionada para o momento. Acompanhe os indicadores mensalmente.');
     rec.innerHTML = '<div class="cap-recommend">' +
-      '<div class="cap-recommend-title">💡 Recomendações baseadas nos dados atuais</div>' +
-      recItems.map(function(i){ return '<div class="cap-recommend-item">'+i+'</div>'; }).join('') +
+      '<div class="cap-recommend-title">💡 Recomendações baseadas nos cenários atuais</div>' +
+      recItems.map(function(i){return '<div class="cap-recommend-item">'+i+'</div>';}).join('') +
     '</div>';
   }
 
-  // ── Histórico velocidade ──────────────────────────────────────────
-  var hist = document.getElementById('cap-history');
-  if(hist && s.prodMonthly && s.prodMonthly.equipe){
-    var meses = s.prodMonthly.equipe.slice(-6);
-    if(meses.length){
-      hist.innerHTML = '<div style="display:grid;grid-template-columns:repeat('+meses.length+',1fr);gap:8px">' +
-        meses.map(function(m){
-          var vel = m.enc || 0;
-          var velPA = nAnalistas > 0 ? (vel/nAnalistas).toFixed(1) : 0;
-          var cls = vel >= velMes ? 'ok' : 'warn';
-          var barH = Math.round(vel / Math.max(...meses.map(function(x){return x.enc||1;})) * 80);
-          return '<div style="text-align:center">' +
-            '<div style="height:80px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:6px">' +
-              '<div style="width:32px;height:'+barH+'px;background:var(--'+(cls==='ok'?'green':'amber')+');border-radius:4px 4px 0 0"></div>' +
-            '</div>' +
-            '<div style="font-size:13px;font-weight:700;color:var(--text)">'+vel+'</div>' +
-            '<div style="font-size:10px;color:var(--text-2)">'+velPA+'/AN</div>' +
-            '<div style="font-size:10px;color:var(--text-3)">'+m.mes+'</div>' +
-          '</div>';
-        }).join('') +
-      '</div>' +
-      '<div style="margin-top:12px;font-size:11px;color:var(--text-2);border-top:1px solid var(--border-light);padding-top:10px">' +
-        'Média: <b>'+velMes+'/mês</b> · '+velAnalistaMes+' por analista · Meta 80%: <b>'+Math.round(velMes*0.8)+'/mês</b>' +
+  // ── Fórmula de cálculo ─────────────────────────────────────────────
+  var formula = document.getElementById('cap-formula');
+  if(formula){
+    formula.innerHTML =
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+        '<div>' +
+          '<div style="font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Como calculamos a absorção</div>' +
+          '<div style="font-size:12px;line-height:1.8;color:var(--text)">' +
+            '<b>Absorção</b> = Demandas encerradas ÷ Demandas abertas no período<br>' +
+            '<b>Velocidade</b> = Total encerradas ÷ Meses de dados<br>' +
+            '<b>Ocupação</b> = Em atuação ÷ (Analistas × '+CAP_MAX_DEM+' simultâneas)<br>' +
+            '<b>Analistas ideais</b> = Velocidade necessária ÷ Velocidade por analista' +
+          '</div>' +
+        '</div>' +
+        '<div>' +
+          '<div style="font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Parâmetros utilizados</div>' +
+          '<div style="font-size:12px;line-height:1.8;color:var(--text)">' +
+            '<b>Meta de absorção:</b> 80%<br>' +
+            '<b>Máx. paralelo:</b> '+CAP_MAX_DEM+' demandas/analista<br>' +
+            '<b>Horizonte p/ zerar:</b> 6 meses<br>' +
+            '<b>Dias úteis/mês:</b> 22 dias' +
+          '</div>' +
+        '</div>' +
       '</div>';
-    } else {
-      hist.innerHTML = '<div style="color:var(--text-2);font-size:13px;padding:16px 0">Histórico disponível após atualização com novos dados.</div>';
-    }
   }
 
-  document.getElementById('cap-sub').textContent = 'Atualizado em '+s.updatedAt+' · 5 analistas · Meta absorção 80%';
+  // ── Histórico de velocidade ─────────────────────────────────────────
+  var hist = document.getElementById('cap-history');
+  if(hist && prodAll.length){
+    var ultimos = prodAll.slice(-8);
+    var maxEnc = Math.max.apply(null, ultimos.map(function(m){return m.enc||0;})) || 1;
+    hist.innerHTML =
+      '<div style="display:grid;grid-template-columns:repeat('+ultimos.length+',1fr);gap:8px;align-items:flex-end">' +
+      ultimos.map(function(m){
+        var v = m.enc || 0;
+        var vpa = nAnalistas > 0 ? (v/nAnalistas).toFixed(1) : 0;
+        var cls = v >= vel2026 ? 'ok' : 'warn';
+        var barH = Math.max(8, Math.round(v / maxEnc * 80));
+        var barClr = cls==='ok'?'var(--green)':'var(--amber)';
+        return '<div style="text-align:center">' +
+          '<div style="height:80px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px">' +
+            '<div style="width:28px;height:'+barH+'px;background:'+barClr+';border-radius:3px 3px 0 0"></div>' +
+          '</div>' +
+          '<div style="font-size:12px;font-weight:700">'+v+'</div>' +
+          '<div style="font-size:9px;color:var(--text-2)">'+vpa+'/AN</div>' +
+          '<div style="font-size:9px;color:var(--text-3)">'+m.mes+'</div>' +
+        '</div>';
+      }).join('') + '</div>' +
+      '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light);font-size:11px;color:var(--text-2)">' +
+        'Média 2026: <b>'+vel2026+'/mês</b> &nbsp;·&nbsp; ' +
+        'Histórico geral: <b>'+velHist+'/mês</b> &nbsp;·&nbsp; ' +
+        'Por analista/mês: <b>'+velPA2026+'</b> (2026) / <b>'+velPAHist+'</b> (histórico)' +
+      '</div>';
+  } else if(hist){
+    hist.innerHTML = '<div style="color:var(--text-2);font-size:13px;padding:16px 0">Histórico disponível após atualização dos dados.</div>';
+  }
+
+  document.getElementById('cap-sub').textContent = 'Atualizado em '+(s.updatedAt||'--')+' · '+nAnalistas+' analistas · Meta absorção 80%';
 }
+
 
 try {
 
