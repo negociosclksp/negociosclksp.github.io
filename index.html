@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="09062026_110650">
+  <meta name="bi-version" content="09062026_112138">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -2175,9 +2175,10 @@ function initCapacity(){
         '<div class="cap-scenario-title">'+titulo+'</div>' +
         '<div class="cap-scenario-sub">'+sub+'</div>' +
         rows.map(function(r){
-          return '<div class="cap-metric-row">' +
-            '<span class="cap-metric-lbl">'+r.lbl+'</span>' +
-            '<span class="cap-metric-val '+r.cls+'">'+r.val+'</span>' +
+          var clr=r.cls==='ok'?'var(--green-dk)':r.cls==='warn'?'var(--amber-dk)':r.cls==='alert'?'var(--red-dk)':'var(--text)';
+          return '<div style="display:grid;grid-template-columns:1fr auto;align-items:center;height:40px;border-bottom:1px solid var(--border-light);gap:8px">' +
+            '<span style="font-size:12px;color:var(--text-2)">'+r.lbl+'</span>' +
+            '<span style="font-size:13px;font-weight:700;color:'+clr+';white-space:nowrap;text-align:right">'+r.val+'</span>' +
           '</div>';
         }).join('') +
         '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)">'+tag+'</div>' +
