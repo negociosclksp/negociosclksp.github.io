@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="15062026_145621">
+  <meta name="bi-version" content="15062026_172433">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -5623,7 +5623,7 @@ function getSelectedWeekDays(){
 
 function isCurrentWeek(weekDays){
 
-  const todayStr = TODAY;
+  const todayStr = today();
 
   return weekDays.some(d => d === todayStr);
 
@@ -5804,6 +5804,20 @@ function renderAlocacao(){
 
     const display = info.special ? '—' : `${Math.round(pct)}%`;
 
+    // demandas na semana e total em aberto
+    const weekDays = getSelectedWeekDays();
+    const demsNaSemana = block.demands.filter(d => weekDays.some(dia => typeof d.dias?.[dia] === 'number' && d.dias[dia] > 0)).length;
+    const demsHoje = info.dems.length;
+    const totalAberto = (STATE_SP.demands?.[block.analista] || []).length;
+    const demTag = info.special ? '' : `<div style="font-size:10px;color:var(--text-2);margin-top:2px">` +
+      (demsHoje > 0
+        ? `<span style="color:var(--text);font-weight:600">${demsHoje}</span> alocada${demsHoje>1?'s':''} hoje` +
+          (demsNaSemana > demsHoje ? ` &nbsp;·&nbsp; <span style="color:var(--text);font-weight:600">${demsNaSemana}</span> na semana` : '') +
+          (totalAberto > 0 ? ` &nbsp;·&nbsp; <span style="color:var(--text);font-weight:600">${totalAberto}</span> em aberto` : '')
+        : 'sem alocação hoje' +
+          (totalAberto > 0 ? ` &nbsp;·&nbsp; <span style="color:var(--text);font-weight:600">${totalAberto}</span> em aberto` : '')) +
+      `</div>`;
+
     return `<div class="al-card${block.analista===curAnalystAloc?' active':''}" onclick="selectAnalystAloc('${block.analista}')">
 
       <div class="al-name">${block.analista}</div>
@@ -5811,8 +5825,9 @@ function renderAlocacao(){
       <div class="al-pct-val" style="color:${color}">${display}</div>
 
       <div class="al-pct-sub">${sub}</div>
+      ${demTag}
 
-      <div class="al-pct-bar"><div class="al-pct-fill" style="width:${Math.min(100,pct)}%;background:${barColor}"></div></div>
+      <div class="al-pct-bar" style="margin-top:6px"><div class="al-pct-fill" style="width:${Math.min(100,pct)}%;background:${barColor}"></div></div>
 
     </div>`;
 
