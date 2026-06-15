@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="15062026_172433">
+  <meta name="bi-version" content="15062026_172750">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -5812,7 +5812,7 @@ function renderAlocacao(){
     const demTag = info.special ? '' : `<div style="font-size:10px;color:var(--text-2);margin-top:2px">` +
       (demsHoje > 0
         ? `<span style="color:var(--text);font-weight:600">${demsHoje}</span> alocada${demsHoje>1?'s':''} hoje` +
-          (demsNaSemana > demsHoje ? ` &nbsp;·&nbsp; <span style="color:var(--text);font-weight:600">${demsNaSemana}</span> na semana` : '') +
+          (demsNaSemana > 0 ? ` &nbsp;·&nbsp; <span style="color:var(--text);font-weight:600">${demsNaSemana}</span> na semana` : '') +
           (totalAberto > 0 ? ` &nbsp;·&nbsp; <span style="color:var(--text);font-weight:600">${totalAberto}</span> em aberto` : '')
         : 'sem alocação hoje' +
           (totalAberto > 0 ? ` &nbsp;·&nbsp; <span style="color:var(--text);font-weight:600">${totalAberto}</span> em aberto` : '')) +
