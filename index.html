@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="16062026_105252">
+  <meta name="bi-version" content="16062026_111258">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1610,8 +1610,8 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
       <div class="page-sub" id="cap-sub">Dimensionamento da equipe baseado em dados reais</div>
     </div>
     <div class="page-header-right" style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:11px;color:var(--text-2)">Meta absorção:</span>
-      <span style="font-size:13px;font-weight:700;color:var(--blue-dk)">80%</span>
+      <span style="font-size:11px;color:var(--text-2)">Meta fechamentos:</span>
+      <span style="font-size:13px;font-weight:700;color:var(--blue-dk)">12/analista</span>
     </div>
   </div>
 
@@ -1641,12 +1641,9 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
   <!-- Meta vs Realizado -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
     <div class="section-label" style="margin-bottom:0">Meta vs Realizado por analista</div>
-    <div style="display:flex;gap:6px">
-      <button class="cap-period-btn active" id="cpb-mes"     onclick="setCapPeriod('mes_atual')">Mês atual</button>
-      <button class="cap-period-btn"        id="cpb-ant"     onclick="setCapPeriod('mes_anterior')">Mês anterior</button>
-      <button class="cap-period-btn"        id="cpb-ano"     onclick="setCapPeriod('ano_atual')">Ano atual</button>
-      <button class="cap-period-btn"        id="cpb-hist"    onclick="setCapPeriod('historico')">Histórico</button>
-    </div>
+    <select id="cap-period-select" onchange="setCapPeriod(this.value)"
+      style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;min-width:160px">
+    </select>
   </div>
   <div class="card" id="cap-meta-realizado" style="padding:20px;margin-bottom:16px"></div>
 
@@ -2064,12 +2061,42 @@ const CAP_ANALISTAS = ['Bruno Saraiva','Camila Moraes','Carolina Andrade','Mathe
 // ── CAPACITY PERIOD FILTER ───────────────────────────────────────────────────
 var capPeriod = 'mes_atual';
 
+function buildCapPeriodSelect(){
+  var sel = document.getElementById('cap-period-select');
+  if(!sel) return;
+  var s = STATE_SP;
+  var prodAll = (s && s.prodMonthly && s.prodMonthly.equipe) ? s.prodMonthly.equipe : [];
+  // Montar opções: meses de Jan/2026 em diante + Ano atual + Histórico
+  var MESES_MAP = {jan:1,fev:2,mar:3,abr:4,mai:5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
+  var meses2026 = prodAll.filter(function(m){
+    var parts = m.mes.split('/');
+    var ano = parseInt('20'+parts[1]);
+    return ano >= 2026;
+  });
+  var options = [];
+  // Meses individuais de Jan/2026 em diante (mais recente primeiro)
+  meses2026.slice().reverse().forEach(function(m){
+    var parts = m.mes.split('/');
+    var nomeMes = parts[0].charAt(0).toUpperCase()+parts[0].slice(1);
+    options.push({val:'mes_'+m.mes, label: nomeMes+'/20'+parts[1]});
+  });
+  options.push({val:'ano_atual',  label: 'Ano atual (2026)'});
+  options.push({val:'historico',  label: 'Histórico completo'});
+  sel.innerHTML = options.map(function(o){
+    return '<option value="'+o.val+'"'+(capPeriod===o.val?' selected':'')+'>'+o.label+'</option>';
+  }).join('');
+  // Se capPeriod ainda é 'mes_atual', mapear para o mês mais recente disponível
+  if(capPeriod === 'mes_atual' && meses2026.length > 0){
+    var ultimo = meses2026[meses2026.length-1];
+    capPeriod = 'mes_'+ultimo.mes;
+    sel.value = capPeriod;
+  }
+}
+
 function setCapPeriod(p){
   capPeriod = p;
-  const map = {mes_atual:'mes', mes_anterior:'ant', ano_atual:'ano', historico:'hist'};
-  document.querySelectorAll('.cap-period-btn').forEach(function(b){b.classList.remove('active');});
-  var btn = document.getElementById('cpb-'+map[p]);
-  if(btn) btn.classList.add('active');
+  var sel = document.getElementById('cap-period-select');
+  if(sel) sel.value = p;
   renderCapMetaRealizado();
 }
 
@@ -2098,13 +2125,8 @@ function renderCapMetaRealizado(){
       ? Object.entries(enc).flatMap(function(kv){ return (kv[1]||[]).map(function(r){ return r; }); })
       : (enc[nome] || []);
 
-    var hoje = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    var iniMesAtual  = new Date(anoAtual, mesAtual, 1);
-    var mesAntN      = mesAtual === 0 ? 11 : mesAtual - 1;
-    var anoAntN      = mesAtual === 0 ? anoAtual - 1 : anoAtual;
-    var iniMesAnt    = new Date(anoAntN, mesAntN, 1);
-    var fimMesAnt    = new Date(anoAtual, mesAtual, 0);
-    var iniAno       = new Date(anoAtual, 0, 1);
+    var MESES_IDX = {jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};
+    var iniAno = new Date(anoAtual, 0, 1);
 
     function parseData(str){
       if(!str) return null;
@@ -2113,34 +2135,48 @@ function renderCapMetaRealizado(){
       return null;
     }
 
+    // Para mês específico: 'mes_jun/26' → jun de 2026
+    var iniMesEsp = null, fimMesEsp = null;
+    if(isMesEspecifico && mesSelecionado){
+      var mp = mesSelecionado.split('/');
+      var mIdx = MESES_IDX[mp[0].toLowerCase()];
+      var mAno = parseInt('20'+mp[1]);
+      iniMesEsp = new Date(mAno, mIdx, 1);
+      fimMesEsp = new Date(mAno, mIdx+1, 0);
+    }
+
     var count = 0;
     arr.forEach(function(r){
       var dt = parseData(r.enc);
       if(!dt) return;
-      if(capPeriod === 'mes_atual'   && dt >= iniMesAtual) count++;
-      else if(capPeriod === 'mes_anterior' && dt >= iniMesAnt && dt <= fimMesAnt) count++;
-      else if(capPeriod === 'ano_atual'    && dt >= iniAno) count++;
+      if(isMesEspecifico){
+        if(iniMesEsp && dt >= iniMesEsp && dt <= fimMesEsp) count++;
+      } else if(capPeriod === 'ano_atual'  && dt >= iniAno) count++;
       else if(capPeriod === 'historico')   count++;
     });
     return count;
   }
 
   // Labels de período
-  var periodoLabels = {
-    mes_atual:    MESES[mesAtual]+'/'+String(anoAtual).slice(2),
-    mes_anterior: MESES[mesAtual===0?11:mesAtual-1]+'/'+(mesAtual===0?anoAtual-1:anoAtual).toString().slice(2),
-    ano_atual:    String(anoAtual),
-    historico:    'Histórico completo'
-  };
+  // Detectar se é um mês específico (val = 'mes_jun/26') ou período especial
+  var isMesEspecifico = capPeriod.startsWith('mes_');
+  var mesSelecionado = isMesEspecifico ? capPeriod.replace('mes_','') : null; // ex: 'jun/26'
+
+  var periodoLabels = {};
+  periodoLabels['mes_atual']    = MESES[mesAtual]+'/'+String(anoAtual).slice(2);
+  periodoLabels['mes_anterior'] = MESES[mesAtual===0?11:mesAtual-1]+'/'+(mesAtual===0?anoAtual-1:anoAtual).toString().slice(2);
+  periodoLabels['ano_atual']    = String(anoAtual);
+  periodoLabels['historico']    = 'Histórico completo';
+  if(mesSelecionado) periodoLabels[capPeriod] = mesSelecionado.split('/')[0].charAt(0).toUpperCase()+mesSelecionado.split('/')[0].slice(1)+'/20'+mesSelecionado.split('/')[1];
 
   // Calcular meta ajustada por período
   var mesesDecorridos = mesAtual + 1;
   function metaPeriodo(pa){
-    if(capPeriod === 'mes_atual' || capPeriod === 'mes_anterior') return pa ? META_PA : META_TIME;
+    if(isMesEspecifico) return pa ? META_PA : META_TIME; // mês = meta mensal
     if(capPeriod === 'ano_atual')  return pa ? Math.round(META_PA * mesesDecorridos * 10)/10 : META_TIME * mesesDecorridos;
-    // historico: usa todos os meses disponíveis
-    var prodAll = (s.prodMonthly && s.prodMonthly.equipe) ? s.prodMonthly.equipe : [];
-    var nMeses = prodAll.length || 1;
+    // historico
+    var prodAll2 = (s.prodMonthly && s.prodMonthly.equipe) ? s.prodMonthly.equipe : [];
+    var nMeses = prodAll2.length || 1;
     return pa ? Math.round(META_PA * nMeses * 10)/10 : META_TIME * nMeses;
   }
 
@@ -2376,10 +2412,11 @@ function initCapacity(){
           {lbl:'Meta por analista',            val: metaPA+'/mês',             cls:''},
           {lbl:'Ritmo por analista (2026)',    val: velPA2026+'/mês',          cls: parseFloat(velPA2026)>=metaPA?'ok':parseFloat(velPA2026)>=metaPA*0.7?'warn':'alert'},
           {lbl:'Diferença analista vs meta',   val: (dif2026PA>=0?'+':'')+dif2026PA.toFixed(1)+'/mês', cls: dif2026PA>=0?'ok':'alert'},
+          {lbl:'Analistas p/ bater a meta',    val: analNec2026+' necessários / '+nAnalistas+' disponíveis', cls: analNec2026<=nAnalistas?'ok':analNec2026<=nAnalistas+1?'warn':'alert'},
         ],
         dif2026PA >= 0
-          ? '<span class="cap-tag ok">Ritmo acima da meta — equipe no caminho certo</span>'
-          : '<span class="cap-tag alert">Ritmo '+Math.abs(dif2026PA.toFixed(1))+' abaixo da meta por analista</span>'
+          ? '<span class="cap-tag ok">Equipe dimensionada para a meta</span>'
+          : '<span class="cap-tag alert">Necessita '+analNec2026+' analistas, tem '+nAnalistas+' — faltam '+(analNec2026-nAnalistas)+'</span>'
       ) +
       cenCard('📊 Cenário 2 — Histórico geral ('+prodAll.length+' meses)',
         'Velocidade média de todos os meses disponíveis',
@@ -2390,10 +2427,11 @@ function initCapacity(){
           {lbl:'Meta por analista',            val: metaPA+'/mês',             cls:''},
           {lbl:'Velocidade histórica/analista',val: velPAHist+'/mês',          cls: parseFloat(velPAHist)>=metaPA?'ok':parseFloat(velPAHist)>=metaPA*0.7?'warn':'alert'},
           {lbl:'Diferença analista vs meta',   val: (dif2026PAHist>=0?'+':'')+dif2026PAHist.toFixed(1)+'/mês', cls: dif2026PAHist>=0?'ok':'alert'},
+          {lbl:'Analistas p/ bater a meta',    val: analNecHist+' necessários / '+nAnalistas+' disponíveis', cls: analNecHist<=nAnalistas?'ok':analNecHist<=nAnalistas+1?'warn':'alert'},
         ],
         parseFloat(velPAHist) >= metaPA
-          ? '<span class="cap-tag ok">Histórico dentro da meta</span>'
-          : '<span class="cap-tag warn">Histórico '+Math.abs(dif2026PAHist.toFixed(1))+' abaixo da meta — meta é desafiadora</span>'
+          ? '<span class="cap-tag ok">Equipe dimensionada para a meta</span>'
+          : '<span class="cap-tag warn">Necessita '+analNecHist+' analistas, tem '+nAnalistas+' — faltam '+(analNecHist-nAnalistas)+'</span>'
       );
   }
 
@@ -2476,6 +2514,7 @@ function initCapacity(){
   }
 
   document.getElementById('cap-sub').textContent = 'Atualizado em '+(s.updatedAt||'--')+' · '+nAnalistas+' analistas · Meta: '+metaPA+' fechamentos/analista/mês';
+  buildCapPeriodSelect();
   renderCapMetaRealizado();
 }
 
