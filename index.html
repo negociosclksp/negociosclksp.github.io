@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="16062026_111258">
+  <meta name="bi-version" content="16062026_112346">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1648,8 +1648,8 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
   <div class="card" id="cap-meta-realizado" style="padding:20px;margin-bottom:16px"></div>
 
   <!-- Tabela histórico velocidade -->
-  <div class="section-label">Histórico de velocidade (entregas/mês)</div>
-  <div class="card" id="cap-history" style="padding:20px"></div>
+  <div class="section-label">Meta vs Fechamentos — Jan/2026 em diante</div>
+  <div class="card" id="cap-history" style="padding:20px 20px 16px"></div>
 </div>
 
 
@@ -2481,36 +2481,98 @@ function initCapacity(){
       '</div>';
   }
 
-  // ── Histórico de velocidade ───────────────────────────────────────
+  // ── Gráfico Meta vs Fechamentos (Jan/2026 em diante) ─────────────
   var hist = document.getElementById('cap-history');
-  if(hist && prodAll.length){
-    var ultimos = prodAll.slice(-8);
-    var maxEnc = Math.max.apply(null, ultimos.map(function(m){ return m.enc||0; })) || 1;
-    hist.innerHTML =
-      '<div style="display:grid;grid-template-columns:repeat('+ultimos.length+',1fr);gap:8px;align-items:flex-end">' +
-      ultimos.map(function(m){
-        var v = m.enc || 0;
-        var vpa = nAnalistas > 0 ? (v/nAnalistas).toFixed(1) : 0;
-        var atingiu = v >= metaTime;
-        var barH = Math.max(8, Math.round(v / maxEnc * 80));
-        var barClr = atingiu ? 'var(--green)' : v >= metaTime*0.7 ? 'var(--amber)' : 'var(--border)';
-        return '<div style="text-align:center">' +
-          '<div style="height:80px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px">' +
-            '<div style="width:28px;height:'+barH+'px;background:'+barClr+';border-radius:3px 3px 0 0"></div>' +
-          '</div>' +
-          '<div style="font-size:12px;font-weight:700;color:'+(atingiu?'var(--green-dk)':'var(--text)')+'">'+v+'</div>' +
-          '<div style="font-size:9px;color:var(--text-2)">'+vpa+'/AN</div>' +
-          '<div style="font-size:9px;color:var(--text-3)">'+m.mes+'</div>' +
+  if(hist){
+    // Filtrar apenas Jan/2026 em diante
+    var MESES_IDX_CAP = {jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:10,nov:10,dez:11};
+    var dados2026 = prodAll.filter(function(m){
+      var parts = m.mes.split('/');
+      var ano = parseInt('20'+parts[1]);
+      return ano >= 2026;
+    });
+
+    if(!dados2026.length){
+      hist.innerHTML = '<div style="color:var(--text-2);font-size:13px;padding:16px 0">Dados disponíveis após atualização.</div>';
+    } else {
+      hist.innerHTML = '<canvas id="cap-hist-chart" style="max-height:220px"></canvas>' +
+        '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border-light);display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--text-2)">' +
+          '<span><span style="display:inline-block;width:10px;height:10px;background:#378ADD;border-radius:2px;margin-right:4px"></span>Fechamentos reais</span>' +
+          '<span><span style="display:inline-block;width:10px;height:10px;background:#E24B4A;border-radius:2px;margin-right:4px"></span>Meta ('+metaTime+'/mês)</span>' +
+          '<span style="margin-left:auto">Ritmo 2026: <b>'+vel2026+'/mês</b> &nbsp;·&nbsp; Meta: <b>'+metaTime+'/mês</b> &nbsp;·&nbsp; Por analista: <b>'+velPA2026+'</b></span>' +
         '</div>';
-      }).join('') + '</div>' +
-      '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light);font-size:11px;color:var(--text-2)">' +
-        'Meta: <b>'+metaTime+'/mês</b> &nbsp;·&nbsp; ' +
-        'Ritmo 2026: <b>'+vel2026+'/mês</b> &nbsp;·&nbsp; ' +
-        'Histórico: <b>'+velHist+'/mês</b> &nbsp;·&nbsp; ' +
-        'Por analista: <b>'+velPA2026+'</b> (2026) / <b>'+velPAHist+'</b> (histórico)' +
-      '</div>';
-  } else if(hist){
-    hist.innerHTML = '<div style="color:var(--text-2);font-size:13px;padding:16px 0">Histórico disponível após atualização dos dados.</div>';
+
+      // Destruir chart anterior se existir
+      if(window._capHistChart){ window._capHistChart.destroy(); window._capHistChart = null; }
+
+      var labels  = dados2026.map(function(m){ return m.mes; });
+      var valores = dados2026.map(function(m){ return m.enc || 0; });
+      var metas   = dados2026.map(function(){ return metaTime; });
+
+      // Cores das barras: verde se atingiu, âmbar se >= 70%, vermelho se abaixo
+      var barColors = valores.map(function(v){
+        return v >= metaTime ? '#1D9E75' : v >= metaTime * 0.7 ? '#EF9F27' : '#E24B4A';
+      });
+
+      window._capHistChart = new Chart(document.getElementById('cap-hist-chart'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Fechamentos',
+              data: valores,
+              backgroundColor: barColors,
+              borderRadius: 4,
+              order: 2,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Meta',
+              data: metas,
+              type: 'line',
+              borderColor: '#E24B4A',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              borderDash: [6, 3],
+              pointRadius: 0,
+              tension: 0,
+              order: 1,
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                afterBody: function(ctx){
+                  var idx2 = ctx[0].dataIndex;
+                  var v = valores[idx2];
+                  var diff = v - metaTime;
+                  return (diff >= 0 ? '✅ +'+diff+' acima da meta' : '⚠ '+Math.abs(diff)+' abaixo da meta');
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { font: { size: 11 } },
+              grid: { color: 'rgba(0,0,0,0.04)' }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { font: { size: 11 } },
+              grid: { color: 'rgba(0,0,0,0.04)' },
+              title: { display: true, text: 'casos fechados', font: { size: 10 }, color: 'rgba(0,0,0,0.4)' }
+            }
+          }
+        }
+      });
+    }
   }
 
   document.getElementById('cap-sub').textContent = 'Atualizado em '+(s.updatedAt||'--')+' · '+nAnalistas+' analistas · Meta: '+metaPA+' fechamentos/analista/mês';
