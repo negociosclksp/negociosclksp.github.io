@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="02072026_154850">
+  <meta name="bi-version" content="02072026_170812">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -995,6 +995,34 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .cap-recommend-item{font-size:12px;color:var(--text);padding:4px 0;display:flex;gap:8px;align-items:flex-start}
 .cap-recommend-item::before{content:'→';color:var(--blue-dk);font-weight:700;flex-shrink:0}
 
+/* ── ALOCAÇÃO POR DEMANDA (timeline) ────────────────────────────────── */
+.ad-legend{display:flex;gap:14px;flex-wrap:wrap;margin:4px 0 16px;font-size:12px;color:var(--text-2)}
+.ad-legend-item{display:flex;align-items:center;gap:6px}
+.ad-legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.ad-filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.ad-fbtn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:12px;cursor:pointer;color:var(--text-2)}
+.ad-fbtn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.ad-timeline-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0;overflow:hidden;margin-bottom:14px}
+.ad-analyst-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border)}
+.ad-analyst-name{font-size:14px;font-weight:600}
+.ad-analyst-stats{font-size:12px;color:var(--text-2)}
+.ad-analyst-stats b{color:var(--text)}
+.ad-axis{display:flex;border-bottom:1px solid var(--border-light);position:relative;background:var(--surface)}
+.ad-axis-label-col{width:280px;flex-shrink:0;padding:6px 12px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3)}
+.ad-axis-months{flex:1;position:relative;height:26px}
+.ad-axis-month{position:absolute;top:6px;font-size:10px;color:var(--text-3);padding-left:4px}
+.ad-row{display:flex;align-items:center;border-bottom:1px solid var(--border-light);min-height:44px}
+.ad-row:last-child{border-bottom:none}
+.ad-row-label{width:280px;flex-shrink:0;padding:6px 12px;font-size:12px;line-height:1.3}
+.ad-row-label .ad-rl-title{color:var(--text);font-weight:500;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.ad-row-label .ad-rl-sub{color:var(--text-3);font-size:10px}
+.ad-row-track{flex:1;position:relative;height:44px}
+.ad-bar{position:absolute;top:9px;height:26px;min-width:8px;border-radius:6px;cursor:default;border:1px solid transparent}
+.ad-bar.ad-estimado{border:1.5px dashed var(--text-3)}
+.ad-bar.ad-atrasada{outline:2px solid var(--red);outline-offset:1px}
+.ad-tooltip{position:fixed;background:#1F1E1B;color:#fff;padding:8px 10px;border-radius:6px;font-size:11px;line-height:1.5;max-width:320px;pointer-events:none;z-index:999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.ad-tooltip b{display:block;margin-bottom:3px;font-size:12px}
+.ad-note{font-size:11px;color:var(--text-3);margin-top:16px;line-height:1.6}
 </style>
 
 </head>
@@ -1056,6 +1084,10 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 
     <div class="nav-item" data-page="cvortex" id="nav-cvortex">
       <span class="nav-icon">⚙️</span> Recursos cVortex
+    </div>
+
+    <div class="nav-item" data-page="alocdemanda" id="nav-aloc-demanda">
+      <span class="nav-icon">🗓️</span> Alocação por Demanda
     </div>
 
 
@@ -1598,7 +1630,32 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
   <div class="card" id="cvortex-today"></div>
 </div>
 
+<!-- PAGE: ALOCAÇÃO POR DEMANDA -->
+<div class="page" id="page-alocdemanda">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-title">Alocação por Demanda</div>
+      <div class="page-sub">Linha do tempo das demandas ativas por analista · Negócios TI - SP</div>
+    </div>
+  </div>
 
+  <div class="ad-legend">
+    <div class="ad-legend-item"><span class="ad-legend-dot" style="background:var(--blue-bg);border:1px solid #B5D4F4"></span>Em Andamento</div>
+    <div class="ad-legend-item"><span class="ad-legend-dot" style="background:var(--green-bg);border:1px solid #9FE1CB"></span>Desenvolvimento</div>
+    <div class="ad-legend-item"><span class="ad-legend-dot" style="background:var(--purple-bg);border:1px solid #CECBF6"></span>Análise</div>
+    <div class="ad-legend-item"><span class="ad-legend-dot" style="background:#FBEAF0;border:1px solid #F4C0D1"></span>Avaliação Técnica</div>
+    <div class="ad-legend-item"><span class="ad-legend-dot" style="background:#E1F5EE;border:1px solid #9FE1CB"></span>Homologação</div>
+    <div class="ad-legend-item"><span class="ad-legend-dot" style="background:var(--surface);border:1.5px dashed var(--text-3)"></span>Fim estimado (sem Entrega Estimada na base)</div>
+    <div class="ad-legend-item"><span class="ad-legend-dot" style="background:#fff;border:2px solid var(--red)"></span>Atrasada (prazo já vencido)</div>
+    <div class="ad-legend-item"><span style="width:20px;height:12px;background:linear-gradient(to right,transparent,var(--blue));display:inline-block;border-radius:2px"></span>Início/fim real fora do período exibido</div>
+  </div>
+
+  <div class="ad-filters" id="ad-filters"></div>
+
+  <div id="ad-board"></div>
+
+  <div class="ad-note">Demandas com status ≠ Encerrada / Backlog / Bloqueada · início = Data de Criação · fim = Entrega Estimada quando disponível na base, ou estimativa por histórico de status quando ausente.</div>
+</div>
 
 
 <!-- PAGE: CAPACITY -->
@@ -1659,6 +1716,7 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 
 
 <div class="toast" id="toast"></div>
+<div class="ad-tooltip" id="ad-tooltip"></div>
 
 <script>
 
@@ -4367,12 +4425,187 @@ document.querySelectorAll('.nav-item:not(.team-btn):not(.nav-external)').forEach
     if(page==='cvortex')     try{initCvortex();}catch(e){console.error(e);}
     if(page==='capacity')    try{initCapacity();}catch(e){console.error(e);}
     if(page==='visualizar')  try{initVisualizar();}catch(e){console.error(e);}
+    if(page==='alocdemanda') try{renderAlocDemanda();}catch(e){console.error(e);}
 
   };
 
 });
 
-// ─── CSV UPLOAD ──────────────────────────────────────────────────────────────
+// ─── ALOCAÇÃO POR DEMANDA (timeline) ──────────────────────────────────────
+// Fonte: STATE_SP.demands (dados já injetados pelo processar_bi.py)
+// OBS: a base ainda não injeta "Entrega Estimada" por demanda — enquanto isso
+// não for adicionado ao processar_bi.py, todo fim é calculado por média
+// histórica de dias por status. Assim que o campo existir em cada demanda
+// (ex: d.entregaEstimada = "DD/MM/AAAA"), o código abaixo passa a usá-lo
+// automaticamente e o indicador tracejado (estimado) some sozinho.
+const AD_MEDIA_DIAS_POR_STATUS = {
+  "Em Andamento": 64, "Desenvolvimento": 117, "Análise": 18,
+  "Avaliação Técnica": 122, "Homologação": 69
+};
+const AD_MEDIA_GERAL_DIAS = 69;
+const AD_STATUS_CLS = {
+  "Em Andamento":"b-and","Desenvolvimento":"b-dev","Análise":"b-ana",
+  "Avaliação Técnica":"b-av","Homologação":"b-hom"
+};
+let adActiveAnalyst = null;
+
+function ad_parseDateBR(s){
+  // aceita "DD/MM/AAAA"
+  if(!s) return null;
+  const [d,m,y] = s.split('/').map(Number);
+  if(!d||!m||!y) return null;
+  return new Date(y, m-1, d);
+}
+function ad_daysBetween(a,b){ return (b-a)/86400000; }
+function ad_cleanTitle(t){
+  let s = t || '';
+  s = s.replace(/^\s*CLK\s*-?\s*SP\s*-\s*/i, '');
+  s = s.replace(/^\s*STO[_\s]?\d+\s*-\s*/i, '');
+  s = s.replace(/^\s*CLK\s*-?\s*SP\s*-\s*/i, '');
+  s = s.replace(/^\s*-\s*/, '');
+  return s.trim() || t;
+}
+
+function ad_buildData(){
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const out = [];
+  Object.entries((STATE_SP && STATE_SP.demands) || {}).forEach(([analista, rows])=>{
+    rows.forEach(d=>{
+      if(d.status==='Backlog' || d.status==='Bloqueada') return;
+      const ini = ad_parseDateBR(d.criacao);
+      if(!ini) return;
+      let fim, estimado;
+      if(d.entregaEstimada){
+        fim = ad_parseDateBR(d.entregaEstimada);
+        estimado = false;
+      } else {
+        const dias = AD_MEDIA_DIAS_POR_STATUS[d.status] || AD_MEDIA_GERAL_DIAS;
+        fim = new Date(ini.getTime() + dias*86400000);
+        estimado = true;
+      }
+      const atrasada = !!(d.entregaEstimada && fim < hoje);
+      out.push({
+        analista, titulo: d.titulo, status: d.status, tipo: d.tipo,
+        inicio: ini, fim, estimado, atrasada, idade: d.idade
+      });
+    });
+  });
+  return out;
+}
+
+function renderAlocDemanda(){
+  const DATA = ad_buildData();
+  const analistas = [...new Set(DATA.map(d=>d.analista))].sort();
+  if(!adActiveAnalyst || (adActiveAnalyst!=='todos' && !analistas.includes(adActiveAnalyst))) adActiveAnalyst = analistas[0];
+
+  const filtersEl = document.getElementById('ad-filters');
+  if(filtersEl){
+    filtersEl.innerHTML = `<button class="ad-fbtn${adActiveAnalyst==='todos'?' active':''}" data-a="todos">Todos</button>` +
+      analistas.map(a=>`<button class="ad-fbtn${adActiveAnalyst===a?' active':''}" data-a="${a}">${a}</button>`).join('');
+    filtersEl.querySelectorAll('.ad-fbtn').forEach(b=>{
+      b.onclick = ()=>{ adActiveAnalyst = b.dataset.a; renderAlocDemanda(); };
+    });
+  }
+
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const filtered = adActiveAnalyst==='todos' ? DATA : DATA.filter(d=>d.analista===adActiveAnalyst);
+  const groups = {};
+  filtered.forEach(d=>{ (groups[d.analista]=groups[d.analista]||[]).push(d); });
+
+  const minD = new Date(hoje.getFullYear(), hoje.getMonth()-2, 1);
+  const maxD = new Date(hoje.getFullYear(), 11, 31);
+  const totalDays = ad_daysBetween(minD, maxD);
+
+  const monthBoundaries = [];
+  let mc = new Date(minD.getFullYear(), minD.getMonth()+1, 1);
+  while(mc < maxD){ monthBoundaries.push(ad_daysBetween(minD, mc)/totalDays*100); mc = new Date(mc.getFullYear(), mc.getMonth()+1, 1); }
+  const gridStyle = monthBoundaries.length
+    ? `background-image:${monthBoundaries.map(()=>'linear-gradient(var(--border-light),var(--border-light))').join(',')};background-size:${monthBoundaries.map(()=>'1px 100%').join(',')};background-position:${monthBoundaries.map(p=>`${p}% 0`).join(',')};background-repeat:no-repeat`
+    : '';
+
+  const board = document.getElementById('ad-board');
+  if(!board) return;
+  board.innerHTML = '';
+
+  Object.keys(groups).sort().forEach(analista=>{
+    const items = groups[analista].sort((a,b)=>a.inicio-b.inicio);
+    const card = document.createElement('div');
+    card.className = 'ad-timeline-card';
+
+    const atrasadas = items.filter(i=>i.atrasada).length;
+    const semEntrega = items.filter(i=>i.estimado).length;
+    const antesJanela = items.filter(i=>i.inicio < minD).length;
+    card.innerHTML = `
+      <div class="ad-analyst-header">
+        <div class="ad-analyst-name">${analista}</div>
+        <div class="ad-analyst-stats"><b>${items.length}</b> demandas ativas ${atrasadas?`· <b style="color:var(--red-dk)">${atrasadas} atrasada(s)</b>`:''}${semEntrega?` · <span style="color:var(--amber-dk)">${semEntrega} sem entrega preenchida</span>`:''}${antesJanela?` · ${antesJanela} iniciada(s) antes do período exibido`:''}</div>
+      </div>
+      <div class="ad-axis">
+        <div class="ad-axis-label-col">Demanda</div>
+        <div class="ad-axis-months" data-months></div>
+      </div>
+      <div data-rows></div>
+    `;
+    board.appendChild(card);
+
+    const monthsEl = card.querySelector('[data-months]');
+    let cursor = new Date(minD);
+    while(cursor <= maxD){
+      const pct = ad_daysBetween(minD, cursor)/totalDays*100;
+      const m = document.createElement('div');
+      m.className = 'ad-axis-month';
+      m.style.left = pct+'%';
+      m.textContent = cursor.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+      monthsEl.appendChild(m);
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
+    }
+
+    const rowsEl = card.querySelector('[data-rows]');
+    items.forEach(d=>{
+      const clippedIni = d.inicio < minD;
+      const clippedFim = d.fim > maxD;
+      const ini = clippedIni ? minD : d.inicio;
+      const fim = clippedFim ? maxD : d.fim;
+      const left = Math.max(ad_daysBetween(minD, ini)/totalDays*100, 0);
+      const width = Math.max(ad_daysBetween(ini, fim)/totalDays*100, 0.6);
+      let maskStyle = '';
+      if(clippedIni && clippedFim) maskStyle = "mask-image:linear-gradient(to right,transparent,#000 10px,#000 calc(100% - 10px),transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 10px,#000 calc(100% - 10px),transparent)";
+      else if(clippedIni) maskStyle = "mask-image:linear-gradient(to right,transparent,#000 10px);-webkit-mask-image:linear-gradient(to right,transparent,#000 10px)";
+      else if(clippedFim) maskStyle = "mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent);-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent)";
+      const row = document.createElement('div');
+      row.className = 'ad-row';
+      const displayTitle = ad_cleanTitle(d.titulo);
+      row.innerHTML = `
+        <div class="ad-row-label">
+          <span class="ad-rl-title" title="${d.titulo}">${displayTitle}</span>
+          <span class="ad-rl-sub">${d.status} · ${d.idade!=null?d.idade+'d':'novo'}${d.estimado?' · <span style="color:var(--amber-dk)">sem entrega preenchida</span>':''}</span>
+        </div>
+        <div class="ad-row-track" style="${gridStyle}">
+          <div class="ad-bar ${AD_STATUS_CLS[d.status]||''} ${d.estimado?'ad-estimado':''} ${d.atrasada?'ad-atrasada':''}"
+               style="left:${left}%;width:${width}%;${maskStyle}"
+               data-tip="${encodeURIComponent(`<b>${displayTitle}</b>${d.status} · ${d.tipo}<br>Início: ${d.inicio.toLocaleDateString('pt-BR')}${clippedIni?' (antes do período exibido)':''}<br>Fim ${d.estimado?'(estimado)':'(previsto)'}: ${d.fim.toLocaleDateString('pt-BR')}${clippedFim?' (além do período exibido)':''}${d.atrasada?'<br><span style="color:#ff9b9b">⚠ prazo vencido</span>':''}`)}">
+          </div>
+        </div>
+      `;
+      rowsEl.appendChild(row);
+    });
+  });
+
+  const tip = document.getElementById('ad-tooltip');
+  if(tip){
+    document.querySelectorAll('.ad-bar').forEach(b=>{
+      b.addEventListener('mousemove', e=>{
+        tip.style.display='block';
+        tip.style.left = (e.clientX+14)+'px';
+        tip.style.top = (e.clientY+14)+'px';
+        tip.innerHTML = decodeURIComponent(b.dataset.tip);
+      });
+      b.addEventListener('mouseleave', ()=>{ tip.style.display='none'; });
+    });
+  }
+}
+
+
 
 document.getElementById('csv-input').addEventListener('change',function(e){
 
