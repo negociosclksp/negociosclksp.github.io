@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="02072026_151925">
+  <meta name="bi-version" content="02072026_154720">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -3066,7 +3066,7 @@ function renderExecutive(){
 
     <div class="kpi alert"><div class="kpi-label">Acima de 30 dias</div><div class="kpi-val">${kDisplay.acima30}</div><div class="kpi-sub">${Math.round(kDisplay.acima30/kDisplay.estoque*100)}% do estoque</div></div>
 
-    <div class="kpi" style="background:#FDE3C4;border-color:#F7B267"><div class="kpi-label" style="color:#8A4B08">Bloqueadas</div><div class="kpi-val" style="color:#8A4B08">${bloqueadasCount}</div><div class="kpi-sub" style="color:#8A4B08">contam no estoque</div></div>
+    <div class="kpi warn"><div class="kpi-label">Bloqueadas</div><div class="kpi-val">${bloqueadasCount}</div><div class="kpi-sub">contam no estoque</div></div>
 
     ${isAreaGeral ? `
 
@@ -3691,7 +3691,7 @@ function renderAnalyst(){
 
       <div class="metric-card warn"><div class="metric-card-label">Backlog</div><div class="metric-card-val">${d.back}</div><div class="metric-card-sub">aguardando</div></div>
 
-      <div class="metric-card" style="background:#FDE3C4;border-color:#F7B267"><div class="metric-card-label" style="color:#8A4B08">Bloqueadas</div><div class="metric-card-val" style="color:#8A4B08">${d.bloq}</div><div class="metric-card-sub" style="color:#8A4B08">paralisadas</div></div>
+      <div class="metric-card warn"><div class="metric-card-label">Bloqueadas</div><div class="metric-card-val">${d.bloq}</div><div class="metric-card-sub">paralisadas</div></div>
 
       <div class="metric-card ${d.absHist>=70?'good':d.absHist>=50?'warn':'alert'}"><div class="metric-card-label">Absorção histórica</div><div class="metric-card-val">${d.absHist}%</div><div class="metric-card-sub">toda a base</div></div>
 
