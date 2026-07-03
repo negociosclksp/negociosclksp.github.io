@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03072026_100649">
+  <meta name="bi-version" content="03072026_103855">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1034,6 +1034,34 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .ad-idx-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:12px;white-space:nowrap;cursor:help}
 .ad-cap-wrap{padding:10px 16px 14px;border-bottom:1px solid var(--border-light);background:var(--surface)}
 .ad-cap-summary{font-size:11.5px;color:var(--text-2);margin-top:6px;line-height:1.5}
+/* ── VISÃO GERENCIAL ────────────────────────────────────────────────── */
+.vg-filters{display:flex;gap:8px;margin-bottom:16px}
+.vg-fbtn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:12px;cursor:pointer;color:var(--text-2)}
+.vg-fbtn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.vg-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.vg-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px}
+.vg-kpi-label{font-size:12px;color:var(--text-2)}
+.vg-kpi-val{font-size:24px;font-weight:600;color:var(--text);margin-top:2px}
+.vg-kpi-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+.vg-alert{background:var(--red-bg);border:1px solid #F0A0A0;border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:16px;font-size:12.5px;color:var(--red-dk)}
+.vg-queue{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:16px}
+.vg-queue-title{font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
+.vg-queue-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-light);font-size:12.5px}
+.vg-queue-row:last-child{border-bottom:none}
+.vg-queue-title-txt{color:var(--text);max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vg-queue-meta{color:var(--text-3);font-size:11px;white-space:nowrap}
+.vg-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.vg-row{display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border-light)}
+.vg-row:last-child{border-bottom:none}
+.vg-name-col{width:180px;flex-shrink:0}
+.vg-name{font-size:13.5px;font-weight:600;color:var(--text)}
+.vg-badge{font-size:11px;font-weight:600;margin-top:2px}
+.vg-gauge-col{flex:1;max-width:300px}
+.vg-gauge{position:relative;height:16px;background:var(--bg);border-radius:4px}
+.vg-gauge-fill{position:absolute;left:0;top:0;bottom:0;border-radius:4px 0 0 4px}
+.vg-gauge-free{position:absolute;top:0;bottom:0;background:var(--green-bg)}
+.vg-gauge-teto{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text)}
+.vg-status-col{width:190px;flex-shrink:0;font-size:11.5px;color:var(--text-3)}
 </style>
 
 </head>
@@ -1097,28 +1125,14 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
       <span class="nav-icon">⚙️</span> Recursos cVortex
     </div>
 
+    <div class="nav-section">Alocação por Demanda</div>
+
     <div class="nav-item" data-page="alocdemanda" id="nav-aloc-demanda">
-      <span class="nav-icon">🗓️</span> Alocação por Demanda
+      <span class="nav-icon">🗓️</span> Equipe Negócios TI - SP
     </div>
 
-
-
-    <div class="nav-section">Nova Alocação Diária</div>
-
-    <div class="nav-item" data-page="visualizar" id="nav-visualizar" data-locked="true">
-      <span class="nav-icon">👁</span> Visualizar Alocações
-      <span style="font-size:9px;background:var(--amber-bg);color:var(--amber-dk);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:4px">Em Dev</span>
-    </div>
-
-    <div class="nav-item" data-page="apontamento" id="nav-apontamento" data-locked="true">
-      <span class="nav-icon">📝</span> Apontamento de Horas
-      <span style="font-size:9px;background:var(--amber-bg);color:var(--amber-dk);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:4px">Em Dev</span>
-    </div>
-
-    <div class="nav-month-group" id="apont-sub-group" style="display:none">
-      <div class="nav-month-item active" id="nav-apontar" onclick="selectApontSub('apontar',this)">
-        <span class="nav-month-dot"></span> Apontar Horas
-      </div>
+    <div class="nav-item" data-page="visaogerencial" id="nav-visao-gerencial">
+      <span class="nav-icon">🧭</span> Visão Gerencial
     </div>
 
   </nav>
@@ -1666,6 +1680,20 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
   <div id="ad-board"></div>
 
   <div class="ad-note">Demandas com status ≠ Encerrada / Backlog / Bloqueada · início = Data de Criação · fim = Entrega Estimada quando disponível na base, ou estimativa por histórico de status quando ausente · a barra de ocupação usa apenas dias restantes projetados (do que já passou não importa pra esse cálculo), ponderados por peso de esforço por status.</div>
+</div>
+
+<!-- PAGE: VISÃO GERENCIAL -->
+<div class="page" id="page-visaogerencial">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-title">Visão Gerencial</div>
+      <div class="page-sub">Capacidade do time agora — quem tem espaço, quem está sobrecarregado, e quando isso muda</div>
+    </div>
+  </div>
+
+  <div class="vg-filters" id="vg-filters"></div>
+
+  <div id="vg-content"></div>
 </div>
 
 
@@ -4437,6 +4465,7 @@ document.querySelectorAll('.nav-item:not(.team-btn):not(.nav-external)').forEach
     if(page==='capacity')    try{initCapacity();}catch(e){console.error(e);}
     if(page==='visualizar')  try{initVisualizar();}catch(e){console.error(e);}
     if(page==='alocdemanda') try{renderAlocDemanda();}catch(e){console.error(e);}
+    if(page==='visaogerencial') try{renderVisaoGerencial();}catch(e){console.error(e);}
 
   };
 
@@ -4483,10 +4512,11 @@ function ad_cleanTitle(t){
   return s.trim() || t;
 }
 
-function ad_buildData(){
+function ad_buildData(state){
+  state = state || STATE_SP;
   const hoje = new Date(); hoje.setHours(0,0,0,0);
   const out = [];
-  Object.entries((STATE_SP && STATE_SP.demands) || {}).forEach(([analista, rows])=>{
+  Object.entries((state && state.demands) || {}).forEach(([analista, rows])=>{
     rows.forEach(d=>{
       if(d.status==='Backlog' || d.status==='Bloqueada') return;
       const ini = ad_parseDateBR(d.criacao);
@@ -4514,9 +4544,10 @@ function ad_buildData(){
   return out;
 }
 
-function ad_buildBacklogBloqCounts(){
+function ad_buildBacklogBloqCounts(state){
+  state = state || STATE_SP;
   const counts = {};
-  Object.entries((STATE_SP && STATE_SP.demands) || {}).forEach(([analista, rows])=>{
+  Object.entries((state && state.demands) || {}).forEach(([analista, rows])=>{
     counts[analista] = counts[analista] || {backlog:0, bloqueada:0};
     rows.forEach(d=>{
       if(d.status==='Backlog') counts[analista].backlog++;
@@ -4780,6 +4811,170 @@ function renderAlocDemanda(){
       b.addEventListener('mouseleave', ()=>{ tip.style.display='none'; });
     });
   }
+}
+
+// ─── VISÃO GERENCIAL ───────────────────────────────────────────────────────
+let vgActiveTeam = 'sp';
+
+function vg_getState(){ return vgActiveTeam === 'udia' ? STATE_UDIA : STATE_SP; }
+
+function vg_computeAnalistas(){
+  const state = vg_getState();
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const maxD = new Date(hoje.getFullYear(), 11, 31);
+  const DATA = ad_buildData(state);
+  const groups = {};
+  DATA.forEach(d=>{ (groups[d.analista]=groups[d.analista]||[]).push(d); });
+  const teto = AD_TETO_CAPACIDADE;
+
+  return Object.keys(groups).sort().map(analista=>{
+    const items = groups[analista];
+    const r = ad_buildCapacityCurve(items, hoje, maxD);
+    const carga = r ? r.cargaAtual : items.reduce((s,d)=>s+d.peso,0);
+    const vagas = teto - carga;
+    return {
+      analista, carga, vagas, teto,
+      proximaLiberacao: r ? r.proximaLiberacao : null
+    };
+  });
+}
+
+function vg_buildQueue(){
+  const state = vg_getState();
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const rows = [];
+  Object.entries((state && state.demands) || {}).forEach(([analista, items])=>{
+    items.forEach(d=>{
+      if(d.status === 'Backlog'){
+        rows.push({analista, titulo: ad_cleanTitle(d.titulo), idade: d.idade || 0});
+      }
+    });
+  });
+  rows.sort((a,b)=>b.idade-a.idade);
+  return rows.slice(0, 8);
+}
+
+function vg_gauge(carga, teto){
+  const scaleMax = teto * 1.4;
+  const vagas = teto - carga;
+  const over = vagas < 0;
+  const loadPct = Math.min(carga, scaleMax) / scaleMax * 100;
+  const tetoPct = teto / scaleMax * 100;
+  const loadColor = over ? 'var(--red)' : (Math.round(vagas)===0 ? 'var(--amber)' : 'var(--blue)');
+  const freeCapPct = over ? 0 : Math.max(0, tetoPct - loadPct);
+  return `<div class="vg-gauge">
+    <div class="vg-gauge-fill" style="width:${loadPct}%;background:${loadColor}"></div>
+    ${freeCapPct>0?`<div class="vg-gauge-free" style="left:${loadPct}%;width:${freeCapPct}%"></div>`:''}
+    <div class="vg-gauge-teto" style="left:${tetoPct}%"></div>
+  </div>`;
+}
+
+function vg_badge(vagas){
+  const v = Math.round(vagas);
+  if(v > 0) return `<div class="vg-badge" style="color:var(--green-dk)">Livre para ${v} demanda${v>1?'s':''}</div>`;
+  if(v === 0) return `<div class="vg-badge" style="color:var(--amber-dk)">No limite</div>`;
+  return `<div class="vg-badge" style="color:var(--red-dk)">${Math.abs(v)} acima do teto</div>`;
+}
+
+function vg_statusText(vagas, proximaLiberacao){
+  if(Math.round(vagas) > 0) return 'Espaço disponível agora';
+  if(proximaLiberacao) return `Libera espaço em ${proximaLiberacao.data.toLocaleDateString('pt-BR')}`;
+  return 'Nenhuma liberação prevista até dez/2026';
+}
+
+function renderVisaoGerencial(){
+  const filtersEl = document.getElementById('vg-filters');
+  if(filtersEl){
+    filtersEl.innerHTML = `
+      <button class="vg-fbtn${vgActiveTeam==='sp'?' active':''}" data-t="sp">Negócios TI - SP</button>
+      <button class="vg-fbtn${vgActiveTeam==='udia'?' active':''}" data-t="udia">Negócios TI - UDIA</button>
+    `;
+    filtersEl.querySelectorAll('.vg-fbtn').forEach(b=>{
+      b.onclick = ()=>{ vgActiveTeam = b.dataset.t; renderVisaoGerencial(); };
+    });
+  }
+
+  const analistas = vg_computeAnalistas();
+  const teto = AD_TETO_CAPACIDADE;
+  const content = document.getElementById('vg-content');
+  if(!content) return;
+  if(!analistas.length){
+    content.innerHTML = `<div class="ad-note">Sem dados de demandas ativas para este time.</div>`;
+    return;
+  }
+
+  const vagasDisponiveis = analistas.reduce((s,a)=>s+Math.max(0,Math.round(a.vagas)),0);
+  const comEspaco = analistas.filter(a=>Math.round(a.vagas) >= 1).length;
+  const acimaTeto = analistas.filter(a=>a.carga > teto).length;
+  const proximasLiberacoes = analistas.filter(a=>a.proximaLiberacao).sort((a,b)=>a.proximaLiberacao.data-b.proximaLiberacao.data);
+  const proxima = proximasLiberacoes[0];
+
+  const graveOveload = analistas.filter(a=>a.carga > teto*1.5);
+  const alertHtml = graveOveload.length ? `
+    <div class="vg-alert">
+      <b>${graveOveload.length} analista${graveOveload.length>1?'s':''} 50%+ acima do teto:</b>
+      ${graveOveload.map(a=>`${a.analista} (${a.carga.toFixed(1)}/${teto})`).join(' · ')}
+    </div>` : '';
+
+  const queue = vg_buildQueue();
+  const queueHtml = `
+    <div class="vg-queue">
+      <div class="vg-queue-title">Fila de espera — backlog mais antigo (${vgActiveTeam==='sp'?'SP':'UDIA'})</div>
+      ${queue.length ? queue.map(q=>`
+        <div class="vg-queue-row">
+          <span class="vg-queue-title-txt" title="${q.titulo}">${q.titulo}</span>
+          <span class="vg-queue-meta">${q.analista} · ${q.idade}d em backlog</span>
+        </div>`).join('') : '<div class="vg-queue-row" style="color:var(--text-3)">Backlog vazio.</div>'}
+    </div>`;
+
+  const sorted = [...analistas].sort((a,b)=>{
+    const va = Math.round(a.vagas), vb = Math.round(b.vagas);
+    if(va !== vb) return vb - va;
+    const da = a.proximaLiberacao ? a.proximaLiberacao.data : new Date(9999,0,1);
+    const db = b.proximaLiberacao ? b.proximaLiberacao.data : new Date(9999,0,1);
+    return da - db;
+  });
+
+  const tableHtml = `
+    <div class="vg-table">
+      ${sorted.map(a=>`
+        <div class="vg-row">
+          <div class="vg-name-col">
+            <div class="vg-name">${a.analista}</div>
+            ${vg_badge(a.vagas)}
+          </div>
+          <div class="vg-gauge-col">${vg_gauge(a.carga, a.teto)}</div>
+          <div class="vg-status-col">${vg_statusText(a.vagas, a.proximaLiberacao)}</div>
+        </div>`).join('')}
+    </div>`;
+
+  content.innerHTML = `
+    <div class="vg-kpi-grid">
+      <div class="vg-kpi">
+        <div class="vg-kpi-label">Vagas disponíveis agora</div>
+        <div class="vg-kpi-val">${vagasDisponiveis}</div>
+        <div class="vg-kpi-sub">no time todo</div>
+      </div>
+      <div class="vg-kpi">
+        <div class="vg-kpi-label">Analistas com espaço</div>
+        <div class="vg-kpi-val">${comEspaco} <span style="font-size:14px;color:var(--text-3);font-weight:400">de ${analistas.length}</span></div>
+        <div class="vg-kpi-sub">podem receber algo agora</div>
+      </div>
+      <div class="vg-kpi">
+        <div class="vg-kpi-label">Acima do teto</div>
+        <div class="vg-kpi-val" style="color:var(--red-dk)">${acimaTeto} <span style="font-size:14px;color:var(--text-3);font-weight:400">de ${analistas.length}</span></div>
+        <div class="vg-kpi-sub">carga acima do sustentável</div>
+      </div>
+      <div class="vg-kpi">
+        <div class="vg-kpi-label">Próxima liberação</div>
+        <div class="vg-kpi-val" style="font-size:16px">${proxima ? proxima.analista+' · '+proxima.proximaLiberacao.data.toLocaleDateString('pt-BR') : '—'}</div>
+        <div class="vg-kpi-sub">primeira do time a abrir espaço</div>
+      </div>
+    </div>
+    ${alertHtml}
+    ${queueHtml}
+    ${tableHtml}
+  `;
 }
 
 
