@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03072026_095828">
+  <meta name="bi-version" content="03072026_100509">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -4623,26 +4623,24 @@ function ad_buildCapacityCurve(items, hoje, maxD){
   return {svg, vagasHoje, proximaLiberacao, cargaAtual, teto};
 }
 
-function ad_buildCapacityCurveBlock(items, hoje, maxD){
+function ad_buildCapacityCurveBlock(items, hoje, maxD, analista){
   const r = ad_buildCapacityCurve(items, hoje, maxD);
   if(!r) return '';
   const vagasRound = Math.round(r.vagasHoje);
-  const vagasColor = vagasRound >= 1 ? 'var(--green-dk)' : 'var(--red-dk)';
-  const vagasTxt = `<b style="color:${vagasColor}">${vagasRound}</b> de ${r.teto} livres agora`;
-  let liberacaoTxt;
-  if(r.proximaLiberacao){
-    const vagasAposRound = Math.round(r.proximaLiberacao.vagasApos);
-    liberacaoTxt = `A partir de <b>${r.proximaLiberacao.data.toLocaleDateString('pt-BR')}</b>, quando "${r.proximaLiberacao.titulo}" terminar, ele passa a ter <b>${vagasAposRound}</b> vaga(s) livre(s).`;
-  } else if(vagasRound >= 1){
-    liberacaoTxt = `Já tem espaço disponível agora mesmo.`;
+  let summaryTxt;
+  if(vagasRound >= 1){
+    summaryTxt = `<b style="color:var(--green-dk)">${analista} consegue absorver ${vagasRound} demanda${vagasRound>1?'s':''} nesse momento.</b>`;
+  } else if(r.proximaLiberacao){
+    const vagasAposRound = Math.max(1, Math.round(r.proximaLiberacao.vagasApos));
+    summaryTxt = `<b style="color:var(--red-dk)">${analista} não tem espaço agora.</b> A partir de <b>${r.proximaLiberacao.data.toLocaleDateString('pt-BR')}</b>, quando "${r.proximaLiberacao.titulo}" terminar, passa a absorver <b>${vagasAposRound}</b> demanda${vagasAposRound>1?'s':''}.`;
   } else {
-    liberacaoTxt = `Nenhuma liberação relevante prevista até dez/2026 com os dados atuais.`;
+    summaryTxt = `<b style="color:var(--red-dk)">${analista} não tem espaço agora</b>, e nenhuma liberação relevante está prevista até dez/2026 com os dados atuais.`;
   }
   return `
     <div class="ad-cap-wrap">
       <div class="ad-occ-label">Projeção de capacidade <span style="color:var(--text-3);font-weight:400">(peso ocupado hoje → como cai conforme as demandas terminam · teto = ${r.teto} demandas simultâneas)</span></div>
       ${r.svg}
-      <div class="ad-cap-summary">${vagasTxt} · ${liberacaoTxt}</div>
+      <div class="ad-cap-summary">${summaryTxt}</div>
     </div>`;
 }
 
@@ -4718,7 +4716,7 @@ function renderAlocDemanda(){
         </div>
       </div>
       ${ad_buildOccupancyBar(items)}
-      ${ad_buildCapacityCurveBlock(items, hoje, maxD)}
+      ${ad_buildCapacityCurveBlock(items, hoje, maxD, analista)}
       <div class="ad-axis">
         <div class="ad-axis-label-col">Demanda</div>
         <div class="ad-axis-months" data-months></div>
