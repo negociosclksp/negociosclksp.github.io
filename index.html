@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03072026_114049">
+  <meta name="bi-version" content="03072026_115627">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -5040,7 +5040,7 @@ function renderAlocRegras(){
         ${mediaRows}
       </table>
       <p>Status com menos de 5 amostras na base usam a média geral (${AD_MEDIA_GERAL_DIAS} dias) em vez do valor isolado, por falta de confiabilidade estatística.</p>
-      <div class="man-note">⚠️ O <code>processar_bi.py</code> ainda não injeta o campo "Entrega Estimada" por demanda — hoje ele só traz <code>criacao</code>. Isso significa que, na prática, quase todas as datas de fim exibidas são estimativas, não valores reais da base. Quando esse campo for adicionado ao pipeline, o sistema passa a usá-lo automaticamente, sem precisar de nenhuma mudança aqui.</div>
+      <div class="man-note">⚠️ O <code>processar_bi.py</code> ainda não injeta o campo "Entrega Estimada" por demanda — hoje ele só traz <code>criacao</code>. Na prática, isso significa que <b>100% das demandas ativas do time, para todos os analistas, aparecem hoje como "sem entrega preenchida"</b> — não é um filtro errado nem um caso isolado, é porque literalmente nenhuma demanda da base tem esse campo ainda. Quando ele for adicionado ao pipeline, cada demanda passa a usar a data real automaticamente, e o indicador "sem entrega preenchida" só continuará aparecendo nas que realmente não tiverem o campo preenchido — sem precisar de nenhuma mudança aqui.</div>
     </div>
 
     <div class="man-section">
