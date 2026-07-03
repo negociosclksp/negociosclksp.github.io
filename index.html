@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03072026_103855">
+  <meta name="bi-version" content="03072026_105925">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1050,7 +1050,7 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .vg-queue-row:last-child{border-bottom:none}
 .vg-queue-title-txt{color:var(--text);max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vg-queue-meta{color:var(--text-3);font-size:11px;white-space:nowrap}
-.vg-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.vg-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
 .vg-row{display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border-light)}
 .vg-row:last-child{border-bottom:none}
 .vg-name-col{width:180px;flex-shrink:0}
@@ -1108,16 +1108,19 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 
     </div>
 
-    <div class="nav-section">Capacity</div>
+    <div class="nav-section">Alocação por Demanda</div>
 
-    <div class="nav-item" data-page="capacity" id="nav-capacity" data-locked="true">
-      <span class="nav-icon">📊</span> Equipe Negócios TI - SP
-      <span style="font-size:9px;background:var(--amber-bg);color:var(--amber-dk);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:4px">Em Dev</span>
+    <div class="nav-item" data-page="visaogerencial" id="nav-visao-gerencial">
+      <span class="nav-icon">🧭</span> Visão Gerencial
     </div>
 
-    <div class="nav-section">Alocação Diária</div>
+    <div class="nav-item" data-page="alocdemanda" id="nav-aloc-demanda">
+      <span class="nav-icon">🗓️</span> Equipe Negócios TI - SP
+    </div>
 
-    <div class="nav-item" data-page="alocacao" id="nav-aloc-equipe">
+    <div class="nav-section">Alocação Fornecedores</div>
+
+    <div class="nav-item" data-page="alocacao" id="nav-aloc-equipe" style="display:none">
       <span class="nav-icon">📅</span> Equipe Negócios TI - SP
     </div>
 
@@ -1125,14 +1128,11 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
       <span class="nav-icon">⚙️</span> Recursos cVortex
     </div>
 
-    <div class="nav-section">Alocação por Demanda</div>
+    <div class="nav-section">Capacity</div>
 
-    <div class="nav-item" data-page="alocdemanda" id="nav-aloc-demanda">
-      <span class="nav-icon">🗓️</span> Equipe Negócios TI - SP
-    </div>
-
-    <div class="nav-item" data-page="visaogerencial" id="nav-visao-gerencial">
-      <span class="nav-icon">🧭</span> Visão Gerencial
+    <div class="nav-item" data-page="capacity" id="nav-capacity" data-locked="true">
+      <span class="nav-icon">📊</span> Equipe Negócios TI - SP
+      <span style="font-size:9px;background:var(--amber-bg);color:var(--amber-dk);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:4px">Em Dev</span>
     </div>
 
   </nav>
@@ -4679,12 +4679,11 @@ function renderAlocDemanda(){
   const DATA = ad_buildData();
   const bbCounts = ad_buildBacklogBloqCounts();
   const analistas = [...new Set(DATA.map(d=>d.analista))].sort();
-  if(!adActiveAnalyst || (adActiveAnalyst!=='todos' && !analistas.includes(adActiveAnalyst))) adActiveAnalyst = analistas[0];
+  if(!adActiveAnalyst || !analistas.includes(adActiveAnalyst)) adActiveAnalyst = analistas[0];
 
   const filtersEl = document.getElementById('ad-filters');
   if(filtersEl){
-    filtersEl.innerHTML = `<button class="ad-fbtn${adActiveAnalyst==='todos'?' active':''}" data-a="todos">Todos</button>` +
-      analistas.map(a=>`<button class="ad-fbtn${adActiveAnalyst===a?' active':''}" data-a="${a}">${a}</button>`).join('');
+    filtersEl.innerHTML = analistas.map(a=>`<button class="ad-fbtn${adActiveAnalyst===a?' active':''}" data-a="${a}">${a}</button>`).join('');
     filtersEl.querySelectorAll('.ad-fbtn').forEach(b=>{
       b.onclick = ()=>{ adActiveAnalyst = b.dataset.a; renderAlocDemanda(); };
     });
@@ -4887,9 +4886,11 @@ function renderVisaoGerencial(){
   if(filtersEl){
     filtersEl.innerHTML = `
       <button class="vg-fbtn${vgActiveTeam==='sp'?' active':''}" data-t="sp">Negócios TI - SP</button>
-      <button class="vg-fbtn${vgActiveTeam==='udia'?' active':''}" data-t="udia">Negócios TI - UDIA</button>
+      <button class="vg-fbtn" data-t="udia" disabled style="opacity:.5;cursor:not-allowed;position:relative">Negócios TI - UDIA
+        <span style="font-size:9px;background:var(--amber-bg);color:var(--amber-dk);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:4px">Em breve</span>
+      </button>
     `;
-    filtersEl.querySelectorAll('.vg-fbtn').forEach(b=>{
+    filtersEl.querySelectorAll('.vg-fbtn:not([disabled])').forEach(b=>{
       b.onclick = ()=>{ vgActiveTeam = b.dataset.t; renderVisaoGerencial(); };
     });
   }
@@ -4972,8 +4973,8 @@ function renderVisaoGerencial(){
       </div>
     </div>
     ${alertHtml}
-    ${queueHtml}
     ${tableHtml}
+    ${queueHtml}
   `;
 }
 
