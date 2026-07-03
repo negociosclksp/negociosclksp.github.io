@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03072026_115627">
+  <meta name="bi-version" content="03072026_150407">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1074,6 +1074,59 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .man-table td{padding:6px 10px;border-bottom:1px solid var(--border-light);color:var(--text)}
 .man-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
 .man-note{background:var(--amber-bg);border:1px solid #F0D9A8;border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--amber-dk);line-height:1.6;margin-top:10px}
+/* ── CVORTEX ────────────────────────────────────────────────────────── */
+.cv-tabs{display:flex;gap:8px;margin-bottom:16px}
+.cv-tab{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:7px 16px;font-size:13px;cursor:pointer;color:var(--text-2);font-weight:500}
+.cv-tab.active{background:var(--text);color:#fff;border-color:var(--text)}
+.cv-view{display:none}
+.cv-view.active{display:block}
+.cv-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.cv-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px}
+.cv-kpi-label{font-size:12px;color:var(--text-2)}
+.cv-kpi-val{font-size:24px;font-weight:600;color:var(--text);margin-top:2px}
+.cv-kpi-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+.cv-legend{display:flex;gap:14px;flex-wrap:wrap;margin:4px 0 14px;font-size:12px;color:var(--text-2)}
+.cv-legend-item{display:flex;align-items:center;gap:6px}
+.cv-legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.cv-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.cv-row{display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border-light)}
+.cv-row:last-child{border-bottom:none}
+.cv-name-col{width:190px;flex-shrink:0}
+.cv-name{font-size:13.5px;font-weight:600;color:var(--text)}
+.cv-badge{font-size:11px;font-weight:600;margin-top:2px}
+.cv-gauge-col{flex:1;max-width:320px}
+.cv-status-col{width:230px;flex-shrink:0;font-size:11.5px;color:var(--text-3)}
+.cv-filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.cv-fbtn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:12px;cursor:pointer;color:var(--text-2)}
+.cv-fbtn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.cv-tcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px}
+.cv-thead{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border)}
+.cv-tname{font-size:14px;font-weight:600}
+.cv-tstats{font-size:12px;color:var(--text-2)}
+.cv-tstats b{color:var(--text)}
+.cv-axis{display:flex;border-bottom:1px solid var(--border-light);background:var(--surface)}
+.cv-axis-label{width:280px;flex-shrink:0;padding:6px 12px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3)}
+.cv-axis-months{flex:1;position:relative;height:24px}
+.cv-axis-month{position:absolute;top:6px;font-size:10px;color:var(--text-3)}
+.cv-trow{display:flex;align-items:center;border-bottom:1px solid var(--border-light);min-height:42px}
+.cv-trow:last-child{border-bottom:none}
+.cv-trow-label{width:280px;flex-shrink:0;padding:6px 12px;font-size:12px;line-height:1.3}
+.cv-rl-title{color:var(--text);font-weight:500;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.cv-rl-sub{color:var(--text-3);font-size:10px}
+.cv-trow-track{flex:1;position:relative;height:42px}
+.cv-tbar{position:absolute;top:8px;height:26px;min-width:8px;border-radius:6px;border:1px solid transparent}
+.cv-st-conc{background:var(--green-bg);color:var(--green-dk);border-color:#C0DD97}
+.cv-st-and{background:var(--blue-bg);color:var(--blue-dk);border-color:#B5D4F4}
+.cv-st-hom{background:var(--purple-bg);color:var(--purple-dk);border-color:#CECBF6}
+.cv-demlist{padding:8px 16px 14px}
+.cv-demlist-title{font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.cv-dem-item{font-size:12px;color:var(--text-2);padding:3px 0}
+.cv-queue{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px}
+.cv-queue-title{font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
+.cv-queue-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-light);font-size:12.5px}
+.cv-queue-row:last-child{border-bottom:none}
+.cv-queue-title-txt{color:var(--text);max-width:500px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cv-queue-meta{color:var(--text-3);font-size:11px;white-space:nowrap}
 </style>
 
 </head>
@@ -1141,7 +1194,7 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
     </div>
 
     <div class="nav-item" data-page="cvortex" id="nav-cvortex">
-      <span class="nav-icon">⚙️</span> Recursos cVortex
+      <span class="nav-icon">⚙️</span> cVortex
     </div>
 
     <div class="nav-section">Capacity</div>
@@ -1653,22 +1706,26 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 </div>
 
 
-<!-- PAGE: RECURSOS CVORTEX -->
+<!-- PAGE: CVORTEX -->
 <div class="page" id="page-cvortex">
   <div class="page-header">
     <div class="page-header-left">
-      <div class="page-title">Recursos cVortex</div>
-      <div class="page-sub" id="cvortex-sub">Visão semanal dos recursos fornecedores</div>
+      <div class="page-title">cVortex</div>
+      <div class="page-sub">Acompanhamento do que o cVortex reporta — migração e demandas normais, por pessoa</div>
     </div>
   </div>
-  <div class="section-label">Alocação de hoje</div>
-  <div class="al-grid" id="cvortex-cards"></div>
-  <div class="section-label" id="cvortex-detail-label">Principais alocações da semana</div>
-  <div class="card" id="cvortex-week">
-    <div id="cvortex-week-bar" style="margin-bottom:14px"></div>
+
+  <div class="cv-tabs">
+    <button class="cv-tab active" data-cvview="gerencial">Visão Gerencial</button>
+    <button class="cv-tab" data-cvview="timeline">Timeline por Pessoa</button>
+    <button class="cv-tab" data-cvview="fila">Fila de Espera</button>
   </div>
-  <div class="section-label" id="cvortex-today-label">Detalhe de hoje</div>
-  <div class="card" id="cvortex-today"></div>
+
+  <div id="cv-view-gerencial" class="cv-view active"></div>
+  <div id="cv-view-timeline" class="cv-view"></div>
+  <div id="cv-view-fila" class="cv-view"></div>
+
+  <div class="ad-note">Dados reportados pela cVortex (planilha semanal) — migração com % real de dedicação diária, demandas normais e férias. Migração e Demandas são frentes distintas, sem peso comparável entre si.</div>
 </div>
 
 <!-- PAGE: ALOCAÇÃO POR DEMANDA -->
@@ -1877,139 +1934,231 @@ var STATE_UDIA = { demands:{}, analysts:[] };
 var curAlocMes = 'MAIO-26'; // será sobrescrito dentro do try{}
 
 // ── RECURSOS CVORTEX ─────────────────────────────────────────────────────
-const ALOCACAO_CVORTEX = { analistas: [{"nome":"Bruna De Oliveira","tipo":"Custo Repassado","atuacao":"Gestão de URA","demands":[{"titulo":"[CALLINK-SP] [DAYCOVAL] - Migração cVortex","tipo":"Projeto","dias":{"2026-06-01":0.85,"2026-06-02":1.0,"2026-06-03":1.0,"2026-06-05":1.0,"2026-06-08":1.0,"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0,"2026-06-15":1.0,"2026-06-16":1.0,"2026-06-17":1.0,"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0,"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0,"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}},{"titulo":"Ajuste em frase inicial [Agente Virtual Credz]","tipo":"Demanda","dias":{"2026-06-01":0.15}}]},{"nome":"Edson Teodoro Alves","tipo":"Custo Repassado","atuacao":"Gestão de Plataforma","demands":[{"titulo":"Validação TT UAT","tipo":"Demanda","dias":{"2026-06-02":0.5,"2026-06-03":1.0}},{"titulo":"[DIGIO] - Migração cVortex","tipo":"Projeto","dias":{"2026-06-01":0.2}},{"titulo":"[CLK MESA RISCO PF] - CLK SP - FINALIZAÇÃO AUTOMÁTICA TEAM TASK","tipo":"Demanda","dias":{"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}},{"titulo":"[FIS] OPERAÇÃO INTERCAMBIO EM UAT","tipo":"Demanda","dias":{"2026-06-02":0.25,"2026-06-05":0.5,"2026-06-08":1.0,"2026-06-09":1.0}},{"titulo":"[FIS] NOVA OPERAÇÃO NÃO MONETARIO","tipo":"Demanda","dias":{"2026-06-02":0.25,"2026-06-05":0.5,"2026-06-10":1.0,"2026-06-11":1.0}},{"titulo":"[FIS] STO_00286532 - BRADESCO - HIBRIDOS - CANAL DE EXCEÇÃO - SAMUEL","tipo":"Demanda","dias":{"2026-06-01":0.3}},{"titulo":"[FIS]CLK SP - STO_00287105 - MELHORIA APÓS SEGREGAÇÃO - CAROL","tipo":"Demanda","dias":{"2026-06-01":0.5}},{"titulo":"[FIS] CLK SP -STO_00286536 - NOVA TABULAÇAÕ NO TEAM TASK - CAROL","tipo":"Demanda","dias":{"2026-06-12":0.5,"2026-06-15":0.5,"2026-06-16":0.5}},{"titulo":"[FIS] CLK SP - Ajuste Layout Mailing Enriquecimento PJ - CAROL","tipo":"Demanda","dias":{"2026-06-12":0.5,"2026-06-15":0.5,"2026-06-16":0.5}},{"titulo":"[FIS] STO_00281507 - BRADESCO - DEMAIS OPERAÇÕES - MESA DE RISCO - BRUNNO","tipo":"Demanda","dias":{"2026-06-17":1.0}},{"titulo":"[FIS] CLK SP - MAPEAMENTO CAIXA DEPARTAMENTAL BACKOFFICE EAVM - INTERCAMBIO - BRUNO","tipo":"Demanda","dias":{"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0}},{"titulo":"[FIS] Ajuste CAD - Documentação - CAROL","tipo":"Demanda","dias":{"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0}}]},{"nome":"João Victor Soares Da Silva","tipo":"Custo Não Repassado","atuacao":"Migração TT → cVortex","demands":[{"titulo":"Digio Intercâmbio","tipo":"Projeto","dias":{"2026-06-01":0.1,"2026-06-02":1.0,"2026-06-03":0.7}},{"titulo":"Santander Backoffice","tipo":"Projeto","dias":{"2026-06-01":0.1,"2026-06-03":0.3,"2026-06-05":1.0}},{"titulo":"HSBC Backoffice","tipo":"Projeto","dias":{"2026-06-08":1.0,"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0,"2026-06-15":0.5}},{"titulo":"Bradesco ON - Apoio Estratégico","tipo":"Projeto","dias":{"2026-06-01":0.4,"2026-06-15":0.5,"2026-06-16":1.0,"2026-06-17":1.0,"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0,"2026-06-23":0.5}},{"titulo":"Bradesco ON - UCB","tipo":"Projeto","dias":{"2026-06-23":0.5,"2026-06-24":1.0,"2026-06-25":1.0,"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}}]},{"nome":"Luciano Silva De Moura","tipo":"Custo Repassado","atuacao":"Gestão de URA","demands":[{"titulo":"[CLARO PROSPECT] - Migração Disparo e-commerce - Plataforma cVortex","tipo":"Demanda","dias":{"2026-06-08":0.5,"2026-06-09":1.0,"2026-06-10":1.0}},{"titulo":"[PMU] - Inclusão de e-mail no pmu_automation@mailsys.cvortex.com","tipo":"Demanda","dias":{"2026-06-16":1.0,"2026-06-17":1.0}},{"titulo":"[PMU] - Inclusão de email para recebimento de report de importação - PMU","tipo":"Projeto","dias":{"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0}},{"titulo":"Ticket#18794117 — ㅤCampo DESCRICAO_CASO vindo com falha no texto","tipo":"Demanda","dias":{"2026-06-11":0.3}},{"titulo":"[PMU] - Cadastro de feriados no Cvortex para que não dispare HSM nestes dias sem operadores para atender","tipo":"Demanda","dias":{"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0}},{"titulo":"[Bv EGV] - Oportunidades sistêmicas pós migração","tipo":"Demanda","dias":{"2026-06-01":1.0,"2026-06-02":1.0,"2026-06-03":1.0,"2026-06-05":1.0,"2026-06-08":0.5}},{"titulo":"[Bradesco Transacional] - Criação de fila Site Bradescard","tipo":"Incidente","dias":{"2026-06-11":0.7,"2026-06-12":1.0,"2026-06-15":1.0}}]},{"nome":"Nicollas Setta De Medeiros","tipo":"Custo Repassado","atuacao":"Gestão de Plataforma","demands":[{"titulo":"NBC Backoffice","tipo":"Projeto","dias":{"2026-06-01":1.0,"2026-06-02":1.0,"2026-06-03":1.0,"2026-06-05":1.0,"2026-06-08":1.0}},{"titulo":"Cybersource","tipo":"Projeto","dias":{"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0,"2026-06-15":1.0,"2026-06-16":1.0,"2026-06-17":1.0,"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-22":1.0,"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0,"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}}]},{"nome":"Rian Elias De Moraes","tipo":"Custo Repassado","atuacao":"Gestão de URA","demands":[{"titulo":"[CALLINK-SP] [DAYCOVAL] - Migração cVortex","tipo":"Projeto","dias":{"2026-06-01":1.0,"2026-06-02":1.0,"2026-06-03":1.0,"2026-06-05":1.0,"2026-06-08":1.0,"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0,"2026-06-15":1.0,"2026-06-16":1.0,"2026-06-17":1.0,"2026-06-18":1.0,"2026-06-19":1.0,"2026-06-23":1.0,"2026-06-24":1.0,"2026-06-25":1.0,"2026-06-26":1.0,"2026-06-29":1.0,"2026-06-30":1.0}}]},{"nome":"Wellington Costa Martins","tipo":"Custo Repassado","atuacao":"Gestão de Plataforma","demands":[{"titulo":"[Bv Intercâmbio] - Agendamento dos follows","tipo":"Demanda","dias":{"2026-06-08":0.5}},{"titulo":"[Bradesco Transacional] - Tornar obrigatório o preenchimento da ação 'Atualiza Rejeição' na fila MAIL","tipo":"Demanda","dias":{"2026-06-08":0.5,"2026-06-09":1.0,"2026-06-10":1.0,"2026-06-11":1.0,"2026-06-12":1.0}},{"titulo":"[Bv EGV] - Oportunidades sistêmicas pós migração","tipo":"Demanda","dias":{"2026-06-01":1.0}}]}]};
+// BEGIN_CVORTEX_DATA
+const CVORTEX_DATA = {};
+// END_CVORTEX_DATA
 
-var curCvortexAnalista = null;
+// ── CVORTEX ──────────────────────────────────────────────────────────────
+const CV_TODAY = new Date();
+CV_TODAY.setHours(0,0,0,0);
 
-function initCvortex(){ curCvortexAnalista=null; renderCvortex(); }
+function cv_parseDate(s){ return s ? new Date(s+'T00:00:00') : null; }
+function cv_daysBetween(a,b){ return (b-a)/86400000; }
+function cv_dateStr(d){ return d.toISOString().slice(0,10); }
 
-function renderCvortex(){
-  var analistas=ALOCACAO_CVORTEX.analistas;
-  var td=today();
-  var cardsEl=document.getElementById('cvortex-cards');
-  if(cardsEl){
-    cardsEl.innerHTML=analistas.map(function(a,i){
-      var total=a.demands.reduce(function(s,d){return s+(d.dias[td]||0);},0);
-      var tp=Math.round(total*100);
-      var clr=tp>=90?'var(--green-dk)':tp>0?'var(--amber-dk)':'var(--text-3)';
-      var sub=tp>=90?'alocado hoje':tp>0?tp+'% alocado':'sem alocação';
-      var active=curCvortexAnalista===a.nome;
-      return '<div class="al-card'+(active?' active':'')+'" onclick="selectCvortexAnalista('+i+')" style="cursor:pointer">'+
-        '<div class="al-name">'+a.nome+'</div>'+
-        '<div style="font-size:10px;background:#EDE9FE;color:#5B21B6;padding:1px 6px;border-radius:4px;display:inline-flex;margin-bottom:2px;font-weight:600">'+a.tipo+'</div>'+
-        '<div style="font-size:10px;color:var(--text-2);margin-bottom:6px">'+a.atuacao+'</div>'+
-        '<div class="al-pct-val" style="color:'+clr+'">'+(tp>0?tp+'%':'—')+'</div>'+
-        '<div class="al-pct-sub" style="color:'+clr+'">'+sub+'</div>'+
-        '<div class="al-pct-bar"><div class="al-pct-fill" style="width:'+Math.min(100,tp)+'%;background:'+clr+'"></div></div>'+
-      '</div>';
-    }).join('');
+const CV_STATUS_CLS = {'Concluido':'cv-st-conc','Em Andamento':'cv-st-and','Em homologacao':'cv-st-hom','Não iniciado':'cv-st-and'};
+
+function cv_people(){
+  return Object.keys(CVORTEX_DATA).filter(n=>n!=='__backlog__').sort();
+}
+
+function cv_cargaDia(pessoa, dateStr){
+  const info = CVORTEX_DATA[pessoa];
+  if(!info) return 0;
+  let total = 0;
+  info.migracao.forEach(t=>{ if(t.diario && t.diario[dateStr]) total += t.diario[dateStr]; });
+  return total;
+}
+
+function cv_proximaLiberacao(pessoa){
+  let cursor = new Date(CV_TODAY);
+  const maxD = new Date(CV_TODAY.getFullYear(),11,31);
+  let prevCarga = cv_cargaDia(pessoa, cv_dateStr(CV_TODAY));
+  cursor.setDate(cursor.getDate()+1);
+  while(cursor <= maxD){
+    const c = cv_cargaDia(pessoa, cv_dateStr(cursor));
+    if(prevCarga >= 1 && c < 1) return {data:new Date(cursor), vagaApos:(1-c)};
+    prevCarga = c;
+    cursor.setDate(cursor.getDate()+1);
   }
-  if(!curCvortexAnalista&&analistas.length) selectCvortexAnalista(0);
-  else { var i=analistas.findIndex(function(a){return a.nome===curCvortexAnalista;}); if(i>=0) cvortexRenderSemana(i); }
+  return null;
 }
 
-function selectCvortexAnalista(idx){
-  var a=ALOCACAO_CVORTEX.analistas[idx];
-  if(!a) return;
-  curCvortexAnalista=a.nome;
-  document.querySelectorAll('#cvortex-cards .al-card').forEach(function(c,i){c.classList.toggle('active',i===idx);});
-  var lbl=document.getElementById('cvortex-detail-label');
-  if(lbl) lbl.textContent='Principais alocações da semana · '+a.nome;
-  cvortexRenderSemana(idx);
-  cvortexRenderToday(idx, today());
-}
+let cvActiveView = 'gerencial';
+let cvActivePerson = null;
 
-function cvortexRenderSemana(idx){
-  var a=ALOCACAO_CVORTEX.analistas[idx];
-  var weekEl=document.getElementById('cvortex-week');
-  if(!weekEl) return;
-  var td=today();
-  var weeks=getWeeksOfMes('2026-06');
-  var wkBtns='';
-  weeks.forEach(function(days,i){
-    var isCur=days.includes(td);
-    var st=isCur?'background:var(--blue-bg);color:var(--blue-dk);border-color:var(--blue);font-weight:500':'';
-    wkBtns+='<button class="wfbtn'+(isCur?' active':'')+(isCur?'':'')+'" style="'+st+'" onclick="cvortexSelectWeek('+idx+','+i+',this)">Semana '+(i+1)+(isCur?' ★':'')+'</button>';
+function initCvortex(){
+  cvActiveView = 'gerencial';
+  cvActivePerson = null;
+  document.querySelectorAll('.cv-tab').forEach(t=>{
+    t.onclick = ()=>{
+      document.querySelectorAll('.cv-tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.cv-view').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      cvActiveView = t.dataset.cvview;
+      document.getElementById('cv-view-'+cvActiveView).classList.add('active');
+      cv_renderActive();
+    };
   });
-  var curWIdx=weeks.findIndex(function(w){return w.includes(td);});
-  if(curWIdx<0) curWIdx=0;
-  var wfBar='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap"><span class="week-filter-lbl">SEMANA</span>'+wkBtns+'</div>';
-  weekEl.innerHTML=wfBar+cvortexWeekGrid(a,weeks[curWIdx]||[],idx,td);
+  document.querySelectorAll('.cv-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.cv-view').forEach(x=>x.classList.remove('active'));
+  document.querySelector('.cv-tab[data-cvview="gerencial"]').classList.add('active');
+  document.getElementById('cv-view-gerencial').classList.add('active');
+  cv_renderActive();
 }
 
-function cvortexWeekGrid(a, weekDays, idx, td){
-  var days=weekDays.filter(function(d){return !isFds(d);});
-  var html2='<div class="week-grid-al">';
-  days.forEach(function(d){
-    var dt=isoToDate(d);
-    var label=dt.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','/').toUpperCase();
-    var isToday=d===td;
-    var fer=isFeriado(d);
-    var cls='week-day-al'+(isToday?' today':'');
-    var onclk='cvortexDayDetail('+idx+',this.dataset.d)';
-    if(fer){
-      html2+='<div class="'+cls+'" data-d="'+d+'" onclick="'+onclk+'"><div class="week-day-lbl">'+label+'</div><div class="week-special">Sem Expediente<br>Feriado</div></div>';
-      return;
-    }
-    var total=a.demands.reduce(function(s,dem){return s+(dem.dias[d]||0);},0);
-    var tp=Math.round(total*100);
-    var totalColor=tp>=90?'var(--green-dk)':tp>=50?'var(--amber-dk)':'var(--red-dk)';
-    var items=a.demands.filter(function(dem){return (dem.dias[d]||0)>0;}).sort(function(x,y){return (y.dias[d]||0)-(x.dias[d]||0);}).slice(0,4);
-    var demsHtml='';
-    items.forEach(function(dem){
-      demsHtml+='<div class="week-dem-al"><span>'+dem.titulo.split('-').pop().trim().substring(0,22)+'</span><span class="week-dem-pct">'+Math.round((dem.dias[d]||0)*100)+'%</span></div>';
-    });
-    html2+='<div class="'+cls+'" data-d="'+d+'" onclick="'+onclk+'">'+
-      '<div class="week-day-lbl">'+label+(isToday?' ★':'')+'</div>'+
-      (items.length?demsHtml:'<div class="week-special" style="text-align:left">Sem alocação</div>')+
-      (tp>0?'<div style="font-size:9px;font-weight:600;color:'+totalColor+';margin-top:4px;border-top:0.5px solid var(--border-light);padding-top:3px">'+tp+'% alocado</div>':'')+
-    '</div>';
-  });
-  html2+='</div>';
-  return html2;
+function cv_renderActive(){
+  if(cvActiveView==='gerencial') cv_renderGerencial();
+  else if(cvActiveView==='timeline') cv_renderTimeline();
+  else if(cvActiveView==='fila') cv_renderFila();
 }
 
-function cvortexRenderToday(idx,d){
-  var a=ALOCACAO_CVORTEX.analistas[idx];
-  var lbl=document.getElementById('cvortex-today-label');
-  var el=document.getElementById('cvortex-today');
-  var dt=isoToDate(d).toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
-  if(lbl) lbl.textContent='Detalhe · '+a.nome+' · '+dt;
+// ================= VISÃO GERENCIAL =================
+function cv_renderGerencial(){
+  const el = document.getElementById('cv-view-gerencial');
   if(!el) return;
-  var items=a.demands.filter(function(dem){return (dem.dias[d]||0)>0;}).sort(function(x,y){return (y.dias[d]||0)-(x.dias[d]||0);});
-  if(!items.length){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-2)">Sem alocação neste dia</div>';return;}
-  var total=items.reduce(function(s,dem){return s+(dem.dias[d]||0);},0);
-  var tp=Math.round(total*100);
-  el.innerHTML='<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border-light)">'+
-    '<span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-2)">Detalhe de hoje · '+a.nome+'</span>'+
-    '<span style="font-weight:700;color:var(--amber-dk)">'+tp+'% OCUPADO</span></div>'+
-    items.map(function(dem){
-      var w=Math.min(100,Math.round((dem.dias[d]||0)*100));
-      var clr=w>=90?'var(--green)':w>=50?'var(--amber)':'var(--blue)';
-      return '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-light)">'+
-        '<div style="width:80px;height:4px;background:var(--border-light);border-radius:2px;overflow:hidden;flex-shrink:0"><div style="height:100%;width:'+w+'%;background:'+clr+';border-radius:2px"></div></div>'+
-        '<span style="font-size:12px;font-weight:600;color:var(--text-2);min-width:30px;text-align:right">'+w+'%</span>'+
-        '<span style="flex:1;font-size:13px">'+dem.titulo+'</span>'+
-        '<span style="font-size:11px;color:var(--text-2)">'+dem.tipo+'</span>'+
-      '</div>';
-    }).join('');
+  const people = cv_people();
+  if(!people.length){ el.innerHTML = '<div class="ad-note">Sem dados do cVortex disponíveis.</div>'; return; }
+
+  const rows = people.map(nome=>{
+    const cargaHoje = cv_cargaDia(nome, cv_dateStr(CV_TODAY));
+    const prox = cv_proximaLiberacao(nome);
+    const info = CVORTEX_DATA[nome];
+    const nDemandas = info.demandas.length;
+    const nMigracao = info.migracao.length;
+    const ativa = info.migracao.find(t=>t.status==='Em Andamento' || t.status==='Em homologacao');
+    return {nome, cargaHoje, prox, nDemandas, nMigracao, ativa};
+  });
+
+  const totalMigracao = rows.reduce((s,r)=>s+r.nMigracao,0);
+  const totalDemandas = rows.reduce((s,r)=>s+r.nDemandas,0);
+  const nBacklog = CVORTEX_DATA['__backlog__'] ? CVORTEX_DATA['__backlog__'].migracao.length : 0;
+
+  const sorted = [...rows].sort((a,b)=>a.nome.localeCompare(b.nome));
+
+  function statusBadge(carga, nDemandas){
+    if(carga >= 1) return `<div class="cv-badge" style="color:var(--blue-dk)">ALOCADO (${Math.round(carga*100)}% em migração)</div>`;
+    if(carga > 0) return `<div class="cv-badge" style="color:var(--blue-dk)">ALOCADO (${Math.round(carga*100)}% em migração)</div>`;
+    if(nDemandas > 0) return `<div class="cv-badge" style="color:var(--amber-dk)">Sem migração, mas com ${nDemandas} demanda(s) normal aberta(s)</div>`;
+    return `<div class="cv-badge" style="color:var(--text-3)">DISPONÍVEL</div>`;
+  }
+  function comboBar(carga, n){
+    const scaleRef = 8;
+    const migPct = Math.min(carga,1)*100;
+    const demPct = Math.min(n/scaleRef,1)*100;
+    return `<div style="display:flex;gap:3px;height:16px">
+      <div style="flex:1;position:relative;background:var(--bg);border-radius:4px 0 0 4px;overflow:hidden"><div style="position:absolute;left:0;top:0;bottom:0;width:${migPct}%;background:var(--blue)"></div></div>
+      <div style="flex:1;position:relative;background:var(--bg);border-radius:0 4px 4px 0;overflow:hidden"><div style="position:absolute;left:0;top:0;bottom:0;width:${demPct}%;background:var(--amber)"></div></div>
+    </div>`;
+  }
+  function previsaoTxt(r){
+    if(r.ativa && r.ativa.fim) return `Tarefa de migração prevista pra concluir em ${new Date(r.ativa.fim).toLocaleDateString('pt-BR')}`;
+    if(r.nMigracao===0 && r.nDemandas===0) return 'Nenhuma atividade reportada';
+    if(r.nMigracao===0) return 'Sem tarefa de migração ativa reportada';
+    return 'Sem data de conclusão informada';
+  }
+
+  el.innerHTML = `
+    <div class="cv-kpi-grid">
+      <div class="cv-kpi"><div class="cv-kpi-label">Pessoas reportadas</div><div class="cv-kpi-val">${rows.length}</div><div class="cv-kpi-sub">no time cVortex</div></div>
+      <div class="cv-kpi"><div class="cv-kpi-label">Tarefas de migração ativas</div><div class="cv-kpi-val">${totalMigracao}</div><div class="cv-kpi-sub">alocadas a alguém</div></div>
+      <div class="cv-kpi"><div class="cv-kpi-label">Demandas normais abertas</div><div class="cv-kpi-val">${totalDemandas}</div><div class="cv-kpi-sub">fila de atendimento</div></div>
+      <div class="cv-kpi"><div class="cv-kpi-label">Sem responsável definido</div><div class="cv-kpi-val" style="color:var(--amber-dk)">${nBacklog}</div><div class="cv-kpi-sub">tarefas de migração em aberto</div></div>
+    </div>
+    <div class="cv-legend">
+      <div class="cv-legend-item"><span class="cv-legend-dot" style="background:var(--blue)"></span>Migração (% real do dia)</div>
+      <div class="cv-legend-item"><span class="cv-legend-dot" style="background:var(--amber)"></span>Demandas normais (volume, nº de itens)</div>
+    </div>
+    <div class="cv-table">
+      ${sorted.map(r=>`
+        <div class="cv-row">
+          <div class="cv-name-col"><div class="cv-name">${r.nome}</div>${statusBadge(r.cargaHoje, r.nDemandas)}</div>
+          <div class="cv-gauge-col">
+            ${comboBar(r.cargaHoje, r.nDemandas)}
+            <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:10px;color:var(--text-3)"><span>${r.nMigracao} tarefa(s) migração</span><span>${r.nDemandas} demanda(s)</span></div>
+          </div>
+          <div class="cv-status-col">${previsaoTxt(r)}</div>
+        </div>`).join('')}
+    </div>
+    <div class="ad-note" style="margin-top:10px">A metade direita da barra (Demandas) reflete apenas volume (nº de itens abertos), não % de ocupação — a base não traz peso/capacidade por demanda normal como traz para migração.</div>`;
 }
 
-function cvortexDayDetail(idx,d){ if(d && d.dataset) d=d.dataset.d; cvortexRenderToday(idx,d); }
+// ================= TIMELINE =================
+function cv_renderTimeline(){
+  const el = document.getElementById('cv-view-timeline');
+  if(!el) return;
+  const people = cv_people();
+  if(!people.length){ el.innerHTML = '<div class="ad-note">Sem dados do cVortex disponíveis.</div>'; return; }
+  if(!cvActivePerson || !people.includes(cvActivePerson)) cvActivePerson = people[0];
 
-function cvortexSelectWeek(analIdx,weekIdx,btn){
-  document.querySelectorAll('#cvortex-week .wfbtn').forEach(function(b){b.classList.remove('active');b.style.background='';b.style.color='';b.style.borderColor='';b.style.fontWeight=''});
-  if(btn){btn.classList.add('active');btn.style.background='#4a4a47';btn.style.color='#fff';btn.style.borderColor='#4a4a47';}
-  var a=ALOCACAO_CVORTEX.analistas[analIdx];
-  var weeks=getWeeksOfMes('2026-06');
-  var td=today();
-  var weekEl=document.getElementById('cvortex-week');
-  if(!weekEl) return;
-  var bar=weekEl.querySelector('div');
-  var newGrid=cvortexWeekGrid(a,weeks[weekIdx]||[],analIdx,td);
-  var oldGrid=weekEl.querySelector('.week-grid-al');
-  if(oldGrid) oldGrid.outerHTML=newGrid;
-  else weekEl.innerHTML=(bar?bar.outerHTML:'')+newGrid;
+  const filtersHtml = `<div class="cv-filters">${people.map(n=>`<button class="cv-fbtn${n===cvActivePerson?' active':''}" data-p="${n}">${n}</button>`).join('')}</div>`;
+  const legendHtml = `<div class="cv-legend">
+    <div class="cv-legend-item"><span class="cv-legend-dot" style="background:var(--green-bg);border:1px solid #C0DD97"></span>Concluído</div>
+    <div class="cv-legend-item"><span class="cv-legend-dot" style="background:var(--blue-bg);border:1px solid #B5D4F4"></span>Em Andamento</div>
+    <div class="cv-legend-item"><span class="cv-legend-dot" style="background:var(--purple-bg);border:1px solid #CECBF6"></span>Em Homologação</div>
+    <div class="cv-legend-item"><span class="cv-legend-dot" style="background:repeating-linear-gradient(45deg,var(--gray-bg) 0 3px,var(--border) 3px 6px)"></span>Férias</div>
+  </div>`;
+
+  const info = CVORTEX_DATA[cvActivePerson];
+  const minD = new Date(CV_TODAY.getFullYear(), CV_TODAY.getMonth()-2, 1);
+  const maxD = new Date(CV_TODAY.getFullYear(),11,31);
+  const totalDays = cv_daysBetween(minD,maxD);
+
+  let cursor = new Date(minD);
+  let monthsHtml = '';
+  while(cursor <= maxD){
+    const pct = cv_daysBetween(minD,cursor)/totalDays*100;
+    monthsHtml += `<div class="cv-axis-month" style="left:${pct}%">${cursor.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')}</div>`;
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
+  }
+
+  const rowsHtml = info.migracao.map(t=>{
+    const ini = cv_parseDate(t.inicio) || minD;
+    const fim = cv_parseDate(t.fim) || ini;
+    const iniClip = ini < minD ? minD : ini;
+    const fimClip = fim > maxD ? maxD : fim;
+    const left = Math.max(cv_daysBetween(minD,iniClip)/totalDays*100,0);
+    const width = Math.max(cv_daysBetween(iniClip,fimClip)/totalDays*100, 0.6);
+    return `<div class="cv-trow">
+      <div class="cv-trow-label"><span class="cv-rl-title" title="${t.titulo}">${t.titulo}</span><span class="cv-rl-sub">${t.cliente||''} · ${t.status||''}</span></div>
+      <div class="cv-trow-track">
+        <div class="cv-tbar ${CV_STATUS_CLS[t.status]||'cv-st-and'}" style="left:${left}%;width:${width}%" data-tip="${encodeURIComponent(`<b>${t.titulo}</b>${t.cliente||''} · ${t.status||''}<br>Início: ${ini.toLocaleDateString('pt-BR')}<br>Fim: ${fim.toLocaleDateString('pt-BR')}`)}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const feriasDatas = (info.ferias||[]).map(f=>f.data).filter(Boolean);
+  const ferias = feriasDatas.length ? `<div style="padding:8px 16px;font-size:11px;color:var(--amber-dk);background:var(--amber-bg)">🏖️ Períodos de férias previstos: ${feriasDatas.map(d=>new Date(d).toLocaleDateString('pt-BR')).join(', ')}</div>` : '';
+
+  const demHtml = info.demandas.length ? `<div class="cv-demlist"><div class="cv-demlist-title">Demandas normais em aberto (sem granularidade diária)</div>${info.demandas.map(d=>`<div class="cv-dem-item">• ${d.titulo} <span style="color:var(--text-3)">— ${d.status||''}</span></div>`).join('')}</div>` : '';
+
+  el.innerHTML = filtersHtml + legendHtml + `
+    <div class="cv-tcard">
+      <div class="cv-thead"><div class="cv-tname">${cvActivePerson}</div><div class="cv-tstats"><b>${info.migracao.length}</b> tarefa(s) de migração · <b>${info.demandas.length}</b> demanda(s) normal</div></div>
+      ${ferias}
+      <div class="cv-axis"><div class="cv-axis-label">Tarefa</div><div class="cv-axis-months">${monthsHtml}</div></div>
+      <div>${rowsHtml || '<div style="padding:16px;color:var(--text-3);font-size:12px">Sem tarefas de migração no momento.</div>'}</div>
+      ${demHtml}
+    </div>`;
+
+  el.querySelectorAll('.cv-fbtn').forEach(b=>{ b.onclick = ()=>{ cvActivePerson = b.dataset.p; cv_renderTimeline(); }; });
+
+  const tip = document.getElementById('tooltip') || document.getElementById('ad-tooltip');
+  if(tip){
+    el.querySelectorAll('.cv-tbar').forEach(b=>{
+      b.addEventListener('mousemove', e=>{
+        tip.style.display='block'; tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY+14)+'px';
+        tip.innerHTML = decodeURIComponent(b.dataset.tip);
+      });
+      b.addEventListener('mouseleave', ()=>{ tip.style.display='none'; });
+    });
+  }
+}
+
+// ================= FILA DE ESPERA =================
+function cv_renderFila(){
+  const el = document.getElementById('cv-view-fila');
+  if(!el) return;
+  const backlog = CVORTEX_DATA['__backlog__'] ? CVORTEX_DATA['__backlog__'].migracao : [];
+  el.innerHTML = `
+    <div class="cv-queue">
+      <div class="cv-queue-title">Tarefas de migração sem responsável (${backlog.length})</div>
+      ${backlog.length ? backlog.map(t=>`
+        <div class="cv-queue-row">
+          <span class="cv-queue-title-txt" title="${t.titulo}">${t.titulo}</span>
+          <span class="cv-queue-meta">${t.cliente||''} · ${t.status||''} · início prev. ${t.inicio ? new Date(t.inicio).toLocaleDateString('pt-BR') : '—'}</span>
+        </div>`).join('') : '<div class="cv-queue-row" style="color:var(--text-3)">Nenhuma tarefa sem responsável.</div>'}
+    </div>`;
 }
 
 // ── CAPACITY ──────────────────────────────────────────────────────────────
