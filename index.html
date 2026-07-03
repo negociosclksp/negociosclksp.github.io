@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03072026_092628">
+  <meta name="bi-version" content="03072026_093634">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -4514,6 +4514,18 @@ function ad_buildData(){
   return out;
 }
 
+function ad_buildBacklogBloqCounts(){
+  const counts = {};
+  Object.entries((STATE_SP && STATE_SP.demands) || {}).forEach(([analista, rows])=>{
+    counts[analista] = counts[analista] || {backlog:0, bloqueada:0};
+    rows.forEach(d=>{
+      if(d.status==='Backlog') counts[analista].backlog++;
+      if(d.status==='Bloqueada') counts[analista].bloqueada++;
+    });
+  });
+  return counts;
+}
+
 // Cores dedicadas pra barra de ocupação (distintas o bastante entre si, diferente das cores de badge)
 const AD_OCC_COLORS = {
   "Em Andamento": "#378ADD",
@@ -4614,12 +4626,14 @@ function ad_buildCapacityCurve(items, hoje, maxD){
 function ad_buildCapacityCurveBlock(items, hoje, maxD){
   const r = ad_buildCapacityCurve(items, hoje, maxD);
   if(!r) return '';
-  const vagasColor = r.vagasHoje >= 1 ? 'var(--green-dk)' : (r.vagasHoje > 0 ? 'var(--amber-dk)' : 'var(--red-dk)');
-  const vagasTxt = `<b style="color:${vagasColor}">${r.vagasHoje.toFixed(1)}</b> de ${r.teto} livres agora`;
+  const vagasRound = Math.round(r.vagasHoje);
+  const vagasColor = vagasRound >= 1 ? 'var(--green-dk)' : 'var(--red-dk)';
+  const vagasTxt = `<b style="color:${vagasColor}">${vagasRound}</b> de ${r.teto} livres agora`;
   let liberacaoTxt;
   if(r.proximaLiberacao){
-    liberacaoTxt = `A partir de <b>${r.proximaLiberacao.data.toLocaleDateString('pt-BR')}</b>, quando "${r.proximaLiberacao.titulo}" terminar, ele passa a ter <b>${r.proximaLiberacao.vagasApos.toFixed(1)}</b> vaga(s) livre(s).`;
-  } else if(r.vagasHoje >= 1){
+    const vagasAposRound = Math.round(r.proximaLiberacao.vagasApos);
+    liberacaoTxt = `A partir de <b>${r.proximaLiberacao.data.toLocaleDateString('pt-BR')}</b>, quando "${r.proximaLiberacao.titulo}" terminar, ele passa a ter <b>${vagasAposRound}</b> vaga(s) livre(s).`;
+  } else if(vagasRound >= 1){
     liberacaoTxt = `Já tem espaço disponível agora mesmo.`;
   } else {
     liberacaoTxt = `Nenhuma liberação relevante prevista até dez/2026 com os dados atuais.`;
@@ -4634,6 +4648,7 @@ function ad_buildCapacityCurveBlock(items, hoje, maxD){
 
 function renderAlocDemanda(){
   const DATA = ad_buildData();
+  const bbCounts = ad_buildBacklogBloqCounts();
   const analistas = [...new Set(DATA.map(d=>d.analista))].sort();
   if(!adActiveAnalyst || (adActiveAnalyst!=='todos' && !analistas.includes(adActiveAnalyst))) adActiveAnalyst = analistas[0];
 
@@ -4699,7 +4714,7 @@ function renderAlocDemanda(){
         <div class="ad-analyst-name">${analista}</div>
         <div style="display:flex;align-items:center;gap:10px">
           ${idxBadge}
-          <div class="ad-analyst-stats"><b>${items.length}</b> demandas ativas ${atrasadas?`· <b style="color:var(--red-dk)">${atrasadas} atrasada(s)</b>`:''}${semEntrega?` · <span style="color:var(--amber-dk)">${semEntrega} sem entrega preenchida</span>`:''}${antesJanela?` · ${antesJanela} iniciada(s) antes do período exibido`:''}</div>
+          <div class="ad-analyst-stats"><b>${items.length}</b> demandas ativas · <b>${(bbCounts[analista]||{}).backlog||0}</b> em backlog · <b style="color:var(--amber-dk)">${(bbCounts[analista]||{}).bloqueada||0}</b> bloqueada(s) ${atrasadas?`· <b style="color:var(--red-dk)">${atrasadas} atrasada(s)</b>`:''}${semEntrega?` · <span style="color:var(--amber-dk)">${semEntrega} sem entrega preenchida</span>`:''}${antesJanela?` · ${antesJanela} iniciada(s) antes do período exibido`:''}</div>
         </div>
       </div>
       ${ad_buildOccupancyBar(items)}
