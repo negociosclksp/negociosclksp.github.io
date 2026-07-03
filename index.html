@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="03072026_105925">
+  <meta name="bi-version" content="03072026_112322">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1062,6 +1062,18 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .vg-gauge-free{position:absolute;top:0;bottom:0;background:var(--green-bg)}
 .vg-gauge-teto{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text)}
 .vg-status-col{width:190px;flex-shrink:0;font-size:11.5px;color:var(--text-3)}
+/* ── REGRAS E MÉTRICAS (manual) ────────────────────────────────────── */
+.man-wrap{max-width:820px}
+.man-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:14px}
+.man-section h3{font-size:15px;font-weight:600;color:var(--text);margin:0 0 10px}
+.man-section p{font-size:13px;color:var(--text-2);line-height:1.65;margin:0 0 10px}
+.man-section p:last-child{margin-bottom:0}
+.man-section ul{margin:0 0 10px;padding-left:20px;font-size:13px;color:var(--text-2);line-height:1.65}
+.man-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+.man-table th{text-align:left;padding:6px 10px;background:var(--bg);color:var(--text-2);font-weight:600;border-bottom:1px solid var(--border)}
+.man-table td{padding:6px 10px;border-bottom:1px solid var(--border-light);color:var(--text)}
+.man-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.man-note{background:var(--amber-bg);border:1px solid #F0D9A8;border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--amber-dk);line-height:1.6;margin-top:10px}
 </style>
 
 </head>
@@ -1116,6 +1128,10 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 
     <div class="nav-item" data-page="alocdemanda" id="nav-aloc-demanda">
       <span class="nav-icon">🗓️</span> Equipe Negócios TI - SP
+    </div>
+
+    <div class="nav-item" data-page="alocregras" id="nav-aloc-regras">
+      <span class="nav-icon">📖</span> Regras e Métricas
     </div>
 
     <div class="nav-section">Alocação Fornecedores</div>
@@ -1694,6 +1710,17 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
   <div class="vg-filters" id="vg-filters"></div>
 
   <div id="vg-content"></div>
+</div>
+
+<!-- PAGE: REGRAS E MÉTRICAS -->
+<div class="page" id="page-alocregras">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-title">Regras e Métricas</div>
+      <div class="page-sub">Manual de referência — como os números de Alocação por Demanda e Visão Gerencial são calculados</div>
+    </div>
+  </div>
+  <div class="man-wrap" id="man-content"></div>
 </div>
 
 
@@ -4466,6 +4493,7 @@ document.querySelectorAll('.nav-item:not(.team-btn):not(.nav-external)').forEach
     if(page==='visualizar')  try{initVisualizar();}catch(e){console.error(e);}
     if(page==='alocdemanda') try{renderAlocDemanda();}catch(e){console.error(e);}
     if(page==='visaogerencial') try{renderVisaoGerencial();}catch(e){console.error(e);}
+    if(page==='alocregras') try{renderAlocRegras();}catch(e){console.error(e);}
 
   };
 
@@ -4762,7 +4790,7 @@ function renderAlocDemanda(){
       const m = document.createElement('div');
       m.className = 'ad-axis-month';
       m.style.left = pct+'%';
-      m.textContent = cursor.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+      m.textContent = cursor.toLocaleDateString('pt-BR',{month:'short'}).replace('.','');
       monthsEl.appendChild(m);
       cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
     }
@@ -4975,6 +5003,126 @@ function renderVisaoGerencial(){
     ${alertHtml}
     ${tableHtml}
     ${queueHtml}
+  `;
+}
+
+// ─── REGRAS E MÉTRICAS (manual) ────────────────────────────────────────────
+function renderAlocRegras(){
+  const el = document.getElementById('man-content');
+  if(!el) return;
+
+  const pesoRows = Object.entries(AD_PESO_STATUS)
+    .map(([st,p])=>`<tr><td>${st}</td><td>${p.toFixed(1)}</td></tr>`).join('');
+
+  const mediaRows = Object.entries(AD_MEDIA_DIAS_POR_STATUS)
+    .map(([st,d])=>`<tr><td>${st}</td><td>${d} dias</td></tr>`).join('');
+
+  el.innerHTML = `
+
+    <div class="man-section">
+      <h3>1. Escopo dos dados</h3>
+      <p>Todo o conteúdo de <b>Alocação por Demanda</b> e <b>Visão Gerencial</b> é lido diretamente de <code>STATE_SP.demands</code> — os mesmos dados injetados pelo <code>processar_bi.py</code> que alimentam o restante do BI. Não é uma base separada.</p>
+      <p>Apenas demandas com status diferente de <b>Encerrada</b>, <b>Backlog</b> e <b>Bloqueada</b> entram nas contas de ocupação, carga e capacidade — porque essas três situações não representam trabalho que o analista está efetivamente executando agora:</p>
+      <ul>
+        <li><b>Encerrada</b> — já finalizada, não ocupa mais ninguém.</li>
+        <li><b>Backlog</b> — ainda não começou a ser trabalhada.</li>
+        <li><b>Bloqueada</b> — parada aguardando algo externo, o analista não está atuando nela no momento.</li>
+      </ul>
+      <p>Essas três aparecem contadas separadamente (ex: "5 em backlog · 6 bloqueada(s)" no cabeçalho de cada analista, e a fila de espera na Visão Gerencial), mas não entram em nenhuma média, índice ou curva de capacidade.</p>
+    </div>
+
+    <div class="man-section">
+      <h3>2. Datas da linha do tempo</h3>
+      <p><b>Início</b> = Data de Criação da demanda (sempre disponível na base).</p>
+      <p><b>Fim</b> = Entrega Estimada, quando esse campo existir na base para aquela demanda. Quando não existir, calculamos uma estimativa: início + média histórica de dias para o status atual, medida sobre a base geral (todas as equipes, não só SP, para ter amostra suficiente):</p>
+      <table class="man-table">
+        <tr><th>Status</th><th>Média usada</th></tr>
+        ${mediaRows}
+      </table>
+      <p>Status com menos de 5 amostras na base usam a média geral (${AD_MEDIA_GERAL_DIAS} dias) em vez do valor isolado, por falta de confiabilidade estatística.</p>
+      <div class="man-note">⚠️ O <code>processar_bi.py</code> ainda não injeta o campo "Entrega Estimada" por demanda — hoje ele só traz <code>criacao</code>. Isso significa que, na prática, quase todas as datas de fim exibidas são estimativas, não valores reais da base. Quando esse campo for adicionado ao pipeline, o sistema passa a usá-lo automaticamente, sem precisar de nenhuma mudança aqui.</div>
+    </div>
+
+    <div class="man-section">
+      <h3>3. Legenda visual da timeline (Equipe Negócios TI - SP)</h3>
+      <ul>
+        <li><b>Cor da barra</b> — indica o status atual da demanda (Em Andamento, Desenvolvimento, Análise, Avaliação Técnica, Homologação).</li>
+        <li><b>Contorno tracejado cinza</b> — a data de fim é estimada (não veio de Entrega Estimada real).</li>
+        <li><b>Contorno vermelho</b> — a Entrega Estimada real já está no passado (prazo vencido).</li>
+        <li><b>Esmaecimento nas pontas</b> — a demanda começou antes ou termina depois da janela exibida (fixa: 2 meses atrás até dezembro/2026).</li>
+        <li><b>Título limpo</b> — prefixos "CLK SP -" e "STO_XXXXXX -" são removidos apenas da exibição, o título original completo aparece ao passar o mouse.</li>
+      </ul>
+    </div>
+
+    <div class="man-section">
+      <h3>4. Peso de ocupação por status</h3>
+      <p>Nem todo status exige a mesma atenção do analista. Por exemplo, em "Desenvolvimento" o analista está majoritariamente acompanhando o desenvolvedor, não com a mão na massa — por isso o peso é baixo. Esses pesos foram validados com o gestor da área:</p>
+      <table class="man-table">
+        <tr><th>Status</th><th>Peso</th></tr>
+        ${pesoRows}
+      </table>
+      <p>Esse peso é usado em três lugares: na composição de ocupação por status, no índice de carga, e na projeção de capacidade.</p>
+    </div>
+
+    <div class="man-section">
+      <h3>5. Ocupação projetada por status <span style="font-weight:400;color:var(--text-3);font-size:12px">(barra de composição)</span></h3>
+      <p>Responde: "do que ainda falta das demandas desse analista, qual fatia é de cada status". Sempre soma 100%, olhando só pra frente (dias já passados não contam):</p>
+      <p style="font-family:monospace;background:var(--bg);padding:8px 12px;border-radius:6px">
+        dias_restantes = max(0, fim_projetado − hoje)<br>
+        carga_ponderada = dias_restantes × peso[status]<br>
+        % do status = carga_ponderada[status] ÷ soma total do analista × 100
+      </p>
+    </div>
+
+    <div class="man-section">
+      <h3>6. Índice de carga <span style="font-weight:400;color:var(--text-3);font-size:12px">(comparação com a média do time)</span></h3>
+      <p style="font-family:monospace;background:var(--bg);padding:8px 12px;border-radius:6px">
+        carga_total(analista) = Σ carga_ponderada de todas as demandas ativas dele<br>
+        índice = carga_total(analista) ÷ média_do_time × 100
+      </p>
+      <p><b>100% = exatamente na média do time.</b> Não é número de demandas nem dias trabalhados — é um proxy relativo de quanto peso-dias-restantes cada um carrega frente aos colegas. A média é sempre calculada com o time inteiro, independente de qual analista você está filtrando na tela.</p>
+      <table class="man-table">
+        <tr><th>Faixa</th><th>Leitura</th></tr>
+        <tr><td><span class="man-badge" style="background:var(--blue-bg);color:var(--blue-dk)">≤ 70%</span></td><td>Abaixo da média</td></tr>
+        <tr><td><span class="man-badge" style="background:var(--green-bg);color:var(--green-dk)">71% – 129%</span></td><td>Equilibrado</td></tr>
+        <tr><td><span class="man-badge" style="background:var(--red-bg);color:var(--red-dk)">≥ 130%</span></td><td>Acima da média</td></tr>
+      </table>
+      <div class="man-note">⚠️ Esse índice é <b>relativo aos colegas</b>, não um teto absoluto. Se o time inteiro estiver sobrecarregado, a média sobe junto, e alguém pode estar "equilibrado" nesse índice mesmo estando no limite real da capacidade dele. Pra saber se existe espaço absoluto pra uma nova demanda, use a Projeção de Capacidade (seção 7) ou a Visão Gerencial, não este índice.</div>
+    </div>
+
+    <div class="man-section">
+      <h3>7. Projeção de capacidade <span style="font-weight:400;color:var(--text-3);font-size:12px">(curva + teto)</span></h3>
+      <p>Diferente da ocupação por status, aqui a "carga atual" não multiplica por dias — é simplesmente a soma dos pesos das demandas ativas do analista agora (quantos "slots" ele está ocupando neste instante):</p>
+      <p style="font-family:monospace;background:var(--bg);padding:8px 12px;border-radius:6px">
+        carga_atual = Σ peso[status] de todas as demandas ativas do analista<br>
+        vagas_livres = teto − carga_atual (arredondado)
+      </p>
+      <p>O <b>teto usado é ${AD_TETO_CAPACIDADE}</b> — calibrado com o gestor especificamente para este modelo ponderado (diferente do teto de 5 usado no painel Capacity Planning original, que conta demandas sem peso, 1 a 1).</p>
+      <p>A curva mostra como essa carga cai ao longo do tempo, conforme as demandas atuais vão terminando (pelo fim projetado de cada uma). O texto abaixo do gráfico traduz isso em uma frase direta: quantas demandas o analista consegue absorver agora, ou quando ele libera espaço e para quantas.</p>
+    </div>
+
+    <div class="man-section">
+      <h3>8. Visão Gerencial</h3>
+      <ul>
+        <li><b>Vagas disponíveis agora</b> — soma das vagas livres (nunca negativa) de todos os analistas do time.</li>
+        <li><b>Analistas com espaço</b> — quantos têm 1 ou mais vagas livres arredondadas.</li>
+        <li><b>Acima do teto</b> — quantos estão com carga atual maior que ${AD_TETO_CAPACIDADE}.</li>
+        <li><b>Próxima liberação</b> — entre os analistas sem espaço, quem tem a data de liberação mais próxima.</li>
+        <li><b>Faixa de alerta vermelha</b> — só aparece se algum analista estiver 50% ou mais acima do teto (carga > ${(AD_TETO_CAPACIDADE*1.5).toFixed(1)}).</li>
+        <li><b>Fila de espera</b> — as 8 demandas mais antigas em Backlog do time, ordenadas por dias de espera (não entra na conta de capacidade, é só contexto de demanda represada).</li>
+        <li><b>Ordenação da tabela</b> — quem tem mais vagas livres aparece primeiro; entre os sem espaço, quem libera mais cedo aparece primeiro.</li>
+      </ul>
+    </div>
+
+    <div class="man-section">
+      <h3>9. Limitações conhecidas</h3>
+      <ul>
+        <li>A base não guarda histórico de transição de status — não sabemos quantos dias uma demanda realmente passou em cada fase antes de chegar no status atual. Os cálculos assumem que ela está no status atual desde sempre, o que é uma aproximação.</li>
+        <li>A maioria das datas de fim ainda são estimativas (ver seção 2) até o campo Entrega Estimada ser injetado pelo pipeline.</li>
+        <li>O teto de ${AD_TETO_CAPACIDADE} é uma calibragem inicial baseada na carga observada em julho/2026 — pode precisar de revisão conforme o perfil de trabalho do time mudar.</li>
+        <li>Hoje o modelo cobre apenas o time Negócios TI - SP. UDIA está com o toggle desabilitado na Visão Gerencial até ser habilitado.</li>
+      </ul>
+    </div>
   `;
 }
 
