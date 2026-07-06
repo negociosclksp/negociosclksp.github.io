@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="06072026_085406">
+  <meta name="bi-version" content="06072026_100515">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1058,6 +1058,7 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .vg-badge{font-size:11px;font-weight:600;margin-top:2px}
 .vg-gauge-col{flex:1;max-width:300px}
 .vg-gauge-wrap{position:relative;padding-top:14px}
+.vg-curve-wrap svg{height:76px !important}
 .vg-gauge-month-line{position:absolute;top:14px;bottom:0;width:1px;background:var(--border-light)}
 .vg-gauge-month-label{position:absolute;top:0;font-size:9px;color:var(--text-3);transform:translateX(2px)}
 .vg-gauge{position:relative;height:16px;background:var(--bg);border-radius:4px}
@@ -4803,13 +4804,27 @@ function ad_buildCapacityCurve(items, hoje, maxD){
   points.push({x:100, y:carga});
 
   const maxY = Math.max(teto, cargaAtual) * 1.15 || 1;
-  const W=1000, H=110, padTop=14, padBottom=6;
+  const W=1000, H=124, padTop=14, padBottom=20;
   const xS = x => x/100*W;
   const yS = y => padTop + (1 - y/maxY)*(H-padTop-padBottom);
 
   const pathD = points.map((p,i)=>(i===0?'M':'L')+xS(p.x).toFixed(1)+','+yS(p.y).toFixed(1)).join(' ');
   const areaD = pathD + ` L${xS(100).toFixed(1)},${yS(0).toFixed(1)} L${xS(0).toFixed(1)},${yS(0).toFixed(1)} Z`;
   const tetoY = yS(teto);
+
+  // Meses de fundo — aqui faz sentido de verdade, o eixo X é tempo real (hoje até dez/2026)
+  const monthTicks = [];
+  let mc = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+  if(mc < hoje) mc = new Date(hoje.getFullYear(), hoje.getMonth()+1, 1);
+  while(mc <= maxD){
+    const pct = Math.max(0, ad_daysBetween(hoje, mc)/totalDays*100);
+    monthTicks.push({x: xS(pct), label: mc.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')});
+    mc = new Date(mc.getFullYear(), mc.getMonth()+1, 1);
+  }
+  const monthsSvg = monthTicks.map(m=>
+    `<line x1="${m.x.toFixed(1)}" y1="${padTop}" x2="${m.x.toFixed(1)}" y2="${(H-padBottom).toFixed(1)}" stroke="var(--border-light)" stroke-width="1"/>` +
+    `<text x="${m.x.toFixed(1)}" y="${H-6}" font-size="11" fill="var(--text-3)" text-anchor="start">${m.label}</text>`
+  ).join('');
 
   const vagasHoje = Math.max(0, teto - cargaAtual);
 
@@ -4824,7 +4839,8 @@ function ad_buildCapacityCurve(items, hoje, maxD){
     }
   }
 
-  const svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100px;display:block">
+  const svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:112px;display:block">
+    ${monthsSvg}
     <line x1="0" y1="${tetoY.toFixed(1)}" x2="${W}" y2="${tetoY.toFixed(1)}" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="5,4"/>
     <text x="${W-4}" y="${Math.max(11,tetoY-5).toFixed(1)}" font-size="12" fill="var(--red-dk)" text-anchor="end">teto: ${teto}</text>
     <path d="${areaD}" fill="var(--blue)" opacity="0.12"/>
@@ -5013,7 +5029,8 @@ function vg_computeAnalistas(){
     const vagas = teto - carga;
     return {
       analista, carga, vagas, teto,
-      proximaLiberacao: r ? r.proximaLiberacao : null
+      proximaLiberacao: r ? r.proximaLiberacao : null,
+      svg: r ? r.svg : null
     };
   });
 }
@@ -5144,7 +5161,7 @@ function renderVisaoGerencial(){
             <div class="vg-name">${a.analista}</div>
             ${vg_badge(a.vagas)}
           </div>
-          <div class="vg-gauge-col">${vg_gauge(a.carga, a.teto)}</div>
+          <div class="vg-gauge-col">${a.svg ? `<div class="vg-curve-wrap">${a.svg}</div>` : vg_gauge(a.carga, a.teto)}</div>
           <div class="vg-status-col">${vg_statusText(a.vagas, a.proximaLiberacao)}</div>
         </div>`).join('')}
     </div>`;
