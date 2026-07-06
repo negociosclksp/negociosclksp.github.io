@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="06072026_100515">
+  <meta name="bi-version" content="06072026_105426">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1051,21 +1051,22 @@ tbody tr.tbl-main:hover td{background:#f5f5f3}
 .vg-queue-title-txt{color:var(--text);max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vg-queue-meta{color:var(--text-3);font-size:11px;white-space:nowrap}
 .vg-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
-.vg-row{display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border-light)}
-.vg-row:last-child{border-bottom:none}
-.vg-name-col{width:180px;flex-shrink:0}
-.vg-name{font-size:13.5px;font-weight:600;color:var(--text)}
+.vg-card{padding:14px 16px;border-bottom:1px solid var(--border-light)}
+.vg-card:last-child{border-bottom:none}
+.vg-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.vg-name-col{flex-shrink:0}
+.vg-name{font-size:14px;font-weight:600;color:var(--text)}
 .vg-badge{font-size:11px;font-weight:600;margin-top:2px}
-.vg-gauge-col{flex:1;max-width:300px}
+.vg-status-col{font-size:12.5px;color:var(--text-2);text-align:right}
+.vg-gauge-col{width:100%}
 .vg-gauge-wrap{position:relative;padding-top:14px}
-.vg-curve-wrap svg{height:76px !important}
+.vg-curve-wrap svg{height:150px !important}
 .vg-gauge-month-line{position:absolute;top:14px;bottom:0;width:1px;background:var(--border-light)}
 .vg-gauge-month-label{position:absolute;top:0;font-size:9px;color:var(--text-3);transform:translateX(2px)}
 .vg-gauge{position:relative;height:16px;background:var(--bg);border-radius:4px}
 .vg-gauge-fill{position:absolute;left:0;top:0;bottom:0;border-radius:4px 0 0 4px}
 .vg-gauge-free{position:absolute;top:0;bottom:0;background:var(--green-bg)}
 .vg-gauge-teto{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text)}
-.vg-status-col{width:190px;flex-shrink:0;font-size:11.5px;color:var(--text-3)}
 /* ── REGRAS E MÉTRICAS (manual) ────────────────────────────────────── */
 .man-wrap{max-width:820px}
 .man-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:14px}
@@ -5156,13 +5157,15 @@ function renderVisaoGerencial(){
   const tableHtml = `
     <div class="vg-table">
       ${sorted.map(a=>`
-        <div class="vg-row">
-          <div class="vg-name-col">
-            <div class="vg-name">${a.analista}</div>
-            ${vg_badge(a.vagas)}
+        <div class="vg-card">
+          <div class="vg-card-header">
+            <div class="vg-name-col">
+              <div class="vg-name">${a.analista}</div>
+              ${vg_badge(a.vagas)}
+            </div>
+            <div class="vg-status-col">${vg_statusText(a.vagas, a.proximaLiberacao)}</div>
           </div>
           <div class="vg-gauge-col">${a.svg ? `<div class="vg-curve-wrap">${a.svg}</div>` : vg_gauge(a.carga, a.teto)}</div>
-          <div class="vg-status-col">${vg_statusText(a.vagas, a.proximaLiberacao)}</div>
         </div>`).join('')}
     </div>`;
 
