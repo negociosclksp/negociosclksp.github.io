@@ -5,7 +5,7 @@
 <head>
 
 <meta charset="UTF-8">
-  <meta name="bi-version" content="07072026_154649">
+  <meta name="bi-version" content="07072026_161620">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -5221,13 +5221,13 @@ function renderVisaoGerencial(){
       </div>
       <div class="vg-kpi">
         <div class="vg-kpi-label">Vagas líquidas agora</div>
-        <div class="vg-kpi-val">${Math.max(0, team.tetoTime - team.cargaTotal).toFixed(0)}</div>
+        <div class="vg-kpi-val">${team.porAnalista.reduce((s,a)=>s+Math.max(0,a.vagas),0).toFixed(0)}</div>
         <div class="vg-kpi-sub">no time como um todo</div>
       </div>
       <div class="vg-kpi">
-        <div class="vg-kpi-label">Time volta a ter folga em</div>
+        <div class="vg-kpi-label">Sobrecarga do time normaliza em</div>
         <div class="vg-kpi-val" style="font-size:18px">${team.dataFolga ? team.dataFolga.toLocaleDateString('pt-BR') : '—'}</div>
-        <div class="vg-kpi-sub">primeira data com espaço líquido p/ algo novo</div>
+        <div class="vg-kpi-sub">quando a carga agregada do time volta a ficar dentro do teto</div>
       </div>
       <div class="vg-kpi">
         <div class="vg-kpi-label">Backlog aguardando</div>
